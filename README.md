@@ -1,10 +1,12 @@
-# Dash CSV Template: MyCSVLoaderApp
+# Dashboard of bike traffic data for the rouge gateway trail in Dearborn
 
-Created on 2022-07-15 14:22:01.932038
+requirements.txt has the python libraries and therir versions required for heroku to run the dashboard
 
-Welcome to your [Plotly Dash](https://plotly.com/dash/) App! This is a template for your MyCSVLoaderApp app.
+runtime.txt has the version of python for heroku to use to run the dashboard
 
-See the [Dash Documentation](https://dash.plotly.com/introduction) for more information on how to get your app up and running.
+procfile is used to 
+
+gitignore is used 
 
 ## Running the App
 
