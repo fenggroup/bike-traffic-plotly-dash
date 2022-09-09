@@ -13,19 +13,9 @@ app = Dash(__name__, title="Bicycle Traffic Data")
 # Declare server for Heroku deployment. Needed for Procfile.
 server = app.server
 
-def load_data(data_file: str) -> pd.DataFrame:
-    '''
-    Load data from /data directory
-    '''
-    PATH = pathlib.Path(__file__).parent
-    DATA_PATH = PATH.joinpath("data").resolve()
-    return pd.read_csv(DATA_PATH.joinpath(data_file))
-
-
-df = load_data("./bike_data.csv")
-
 # This block of code reads the data set into a pandas dataframe and formats it
 #start
+df = pd.read_csv("./data/bike_data.csv")
 
 df.columns = ['Time', 'Eastbound', 'Westbound']
 
