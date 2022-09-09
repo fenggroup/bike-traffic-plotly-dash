@@ -1,7 +1,3 @@
-'''
- # @ Create Time: 2022-07-15 14:22:01.941239
-'''
-
 import pathlib
 from dash import Dash, dcc, html, Input, Output, dash_table
 import plotly.express as px
