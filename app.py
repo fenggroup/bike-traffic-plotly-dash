@@ -1,216 +1,220 @@
-import pathlib
 from dash import Dash, dcc, html, Input, Output, dash_table
 import plotly.express as px
 import pandas as pd
 import numpy as np
 
-app = Dash(__name__, title="Bicycle Traffic Data")
+title = "Bicycle Traffic Dashboard"
+
+app = Dash(__name__, title=title)
 
 # Declare server for Heroku deployment. Needed for Procfile.
 server = app.server
 
-# This block of code reads the data set into a pandas dataframe and formats it
-#start
-df = pd.read_csv("./data/bike_data.csv")
+# Read the data set into a pandas dataframe and formats it
+data_file_name = "bike_data.csv"
 
-df.columns = ['Time', 'Eastbound', 'Westbound']
+path = "./data/" + data_file_name
+df = pd.read_csv(path, names=["time", "east", "west"], header=0)
 
-df['Both directions'] = df['Eastbound'] + df['Westbound']
+df["bi_direction"] = df["east"] + df["west"]
 
-df['Time'] = pd.to_datetime(df['Time'])
-df['day_of_week'] = df['Time'].dt.day_name()
+# Convert the time to a pandas datetime object
+df["time"] = pd.to_datetime(df["time"])
 
-df = df.reindex(['Time', 'Both directions', 'Eastbound', 'Westbound'], axis="columns")
-#end
+df = df.set_index("time")
 
-# This block of code sets a variable for the minimum and maximum date that can be selected in the date picker
-# start
-min_date_allowed = df['Time'].dt.date.unique().min()
+# Set variables for the min and max date that can be selected in the date picker
+min_date_allowed = df.index.date.min()
+max_date_allowed = df.index.date.max()
 
-max_date_allowed = df['Time'].dt.date.unique().max()
-# end
+# A function to update the dataframe based on the specified resample rule and date range
+def df_update(df, rule, start_date, end_date):
 
-# This block of code aggregates the data so the user can choice the resolution of the data
-# start
-df_15m = df.resample('15T', on='Time', axis=0).sum().reset_index()
-df_15m['day_of_week'] = df_15m['Time'].dt.day_name()
+    df_resample = df.resample(rule).sum()
 
-df_30m = df.resample('30T', on='Time', axis=0).sum().reset_index()
-df_30m['day_of_week'] = df_30m['Time'].dt.day_name()
-    
-df_1h = df.resample('1H', on='Time', axis=0).sum().reset_index()
-df_1h['day_of_week'] = df_1h['Time'].dt.day_name()
+    df_filtered = df_resample[(df_resample.index.strftime("%Y-%m-%d") >= start_date) & 
+                              (df_resample.index.strftime("%Y-%m-%d") <= end_date)]
 
-df_daily = df.resample('D', on='Time', axis=0).sum().reset_index()
-df_daily['day_of_week'] = df_daily['Time'].dt.day_name()
-# end
+    df_filtered["day_of_week"] = df_filtered.index.strftime("%a")
 
-# This block of code sets up a preliminary dataframe for the data table
-# start
-data_table = np.zeros((3,3))
+    return df_filtered
 
-table = pd.DataFrame(data_table, columns = ['','Total volume','Average daily volume'])
-# end
+
+# Set up a preliminary dataframe for the data table
+table = pd.DataFrame(np.zeros((3,4)))
 
 app.layout = html.Div([
     
     html.Div(children=[
-    html.H1(children='Bicycle Traffic Data', style={'textAlign': 'center'}), 
-    html.H2(children=dcc.Markdown("Location: [Rouge Gateway Trail, Dearborn, MI](https://goo.gl/maps/WzSvLWxtkyoro9oK8)"), 
-    style={'textAlign': 'center'}),
-    html.H4(children='Data collection: 5 weeks (2022-06-15 to 2022-07-19)', style={'textAlign': 'center'})]),
+             html.H1(children=title), 
+             html.H3(children=dcc.Markdown("Location: [Rouge Gateway Trail, Dearborn, MI](https://goo.gl/maps/WzSvLWxtkyoro9oK8)")),
+             html.H3(children="Data collection: 5 weeks (2022-06-15 to 2022-07-19)"),
+             ]),
     
-    html.Div(children=[
-    html.H3(children='Select data range')],
-            style={'textAlign': 'center', 'width': '30%', 'display': 'inline-block'}),
+    html.Div(id="select-date-range",
+             children=[
+             html.H3(children="Select dates"), 
+             dcc.DatePickerRange(id='my-date-picker-range',
+                                 min_date_allowed = min_date_allowed,
+                                 max_date_allowed = max_date_allowed,
+                                 start_date = min_date_allowed,
+                                 end_date = max_date_allowed, 
+                                 minimum_nights=0,),
+             ]),
     
-    html.Div(children=[
-    html.H3(children='Select traffic direction')],
-            style={'textAlign': 'center', 'width': '40%', 'display': 'inline-block'}),
+    html.Div(id="select-direction",
+             children=[
+             html.H3(children="Select traffic direction"), 
+             dcc.RadioItems(options={"bi-direction": "Both directions", 
+                                     "east": "Eastbound", 
+                                     "west": "Westbound"},
+                            value="bi-direction",
+                            id='data-dir-radio'),
+            ]),
     
-    html.Div(children=[
-    html.H3(children='Select data resolution')],
-            style={'textAlign': 'center', 'width': '30%', 'display': 'inline-block'}),
-    
-    html.Div(children=[
-    dcc.DatePickerRange(id='my-date-picker-range',
-                        min_date_allowed = min_date_allowed,
-                        max_date_allowed = max_date_allowed,
-                        start_date = min_date_allowed,
-                        end_date = max_date_allowed)],
-            style={'textAlign': 'center', 'width': '30%', 'display': 'inline-block'}),
-    
-    html.Div(children=[
-    dcc.RadioItems(['Both directions', 'Eastbound only', 'Westbound only'],'Both directions' ,id='data-dir-radio')],
-        style={'textAlign': 'center', 'width': '40%', 'display': 'inline-block'}),
-    
-    html.Div(children=[
-    dcc.RadioItems(['1 day', '1 hour', '30 min', '15 min'], '1 day' ,id='data-agg-radio')],
-        style={'textAlign': 'center', 'width': '30%', 'display': 'inline-block'}),
-    
-    html.Div(children=[
-    dcc.Graph(id='counter-bar-graph')]),
-     
-    html.Div(children=[
-    html.H3(children='Volume by direction', 
-    style={'textAlign': 'center', 'width': '48%', 'display': 'inline-block', 'float': 'right'})]),
-    
-    html.Div(children=[
-    html.H3(children='Bicycle traffic data', 
-    style={'textAlign': 'center', 'width': '48%', 'display': 'inline-block'})]),
-    
-    html.Div(
-    dash_table.DataTable(data = table.to_dict("records"), 
-                         columns =[{"name": "", "id": ""},
-                                   {"name": "Total volume", "id": "Total volume"},
-                                   {"name": "Average daily volume", "id": "Average daily volume"}],
-                         style_table={'height': '250px', 'overflowY': 'auto'},
-                         id='avg-table'),
-    style={'width': '48%', 'height': '100%', 'display': 'inline-block'}),
-    
-    html.Div(children=[
-    dcc.Graph(id='counter-pie-chart')],
-    style={'width': '48%', 'display': 'inline-block', 'float': 'right'}),
-    
-    html.Div(children=[
-    html.H4(children=dcc.Markdown("Download the [raw CSV file](http://www.umich.edu/~fredfeng/bike-counter-dearborn-20220615.csv)"), 
-    style={'textAlign': 'center'}),]),
+    html.Div(id="select-resolution",
+             children=[
+             html.H3(children="Select data resolution"), 
+             dcc.RadioItems(options={"1_day": "1 day",
+                                     "1_hour": "1 hour", 
+                                     "30_min": "30 min",
+                                     "15_min": "15 min"}, 
+                            value="1_day",
+                            id='data-agg-radio'),
+            ]),
 
     html.Div(children=[
-    html.H4(children=dcc.Markdown("[Click here](https://fenggroup.org/bike-counter/) to learn more about our bike counting project."), 
-    style={'textAlign': 'center'}),])
-    
+    dcc.Graph(id='bar-graph')]),
+
+    html.Div(children=[
+             html.H3(children='Bicycle volume on the selected dates'), 
+             dash_table.DataTable(data = table.to_dict("records"), 
+                                  columns =[
+                                    dict(id='dir', name=''),
+                                    dict(id='total_vol', name='Total volume', type='numeric', format=dash_table.Format.Format().group(True)),
+                                    dict(id='daily_avg', name='Ave. daily volume', type='numeric', format=dash_table.Format.Format(precision=1, scheme=dash_table.Format.Scheme.fixed)),
+                                    dict(id='perc', name='Percent', type='numeric', format=dash_table.FormatTemplate.percentage(1))
+                                    ],
+                                    style_cell_conditional=[
+                                        {'if': {'column_id': 'dir'},
+                                        'width': '25%'},
+                                        {'if': {'column_id': 'total_vol'},
+                                        'width': '25%'},
+                                        {'if': {'column_id': 'daily_avg'},
+                                        'width': '25%'},
+                                        {'if': {'column_id': 'perc'},
+                                        'width': '20%'},
+                                        ],
+                                  style_table={'height': '250px', 'overflowY': 'auto'},
+                                  style_cell={'font-family':'Roboto', 'padding-right': '10px', 'padding-left': '10px'},
+                                  id='avg-table'),
+            ]), 
+
+    html.Div(children=[
+        html.H4(children=dcc.Markdown("Download the [raw CSV file](http://www.umich.edu/~fredfeng/bike-counter-dearborn-20220615.csv)")),
+        html.H4(children=dcc.Markdown("[Click here](https://fenggroup.org/bike-counter/) to learn more about our bike counting project.")), 
+        html.H4(children=dcc.Markdown("[Feng Group](https://fenggroup.org/) 2022"))
+    ])
     
 ])
 
-
 @app.callback(
-    Output('counter-bar-graph', 'figure'),
-    Output('counter-pie-chart', 'figure'),
-    Input('data-dir-radio', 'value'),
-    Input('data-agg-radio', 'value'),
-    Input('my-date-picker-range', 'start_date'),
-    Input('my-date-picker-range', 'end_date'))
+    Output("bar-graph", "figure"),
+    Input("data-dir-radio", "value"),
+    Input("data-agg-radio", "value"),
+    Input("my-date-picker-range", "start_date"),
+    Input("my-date-picker-range", "end_date"))
+
 def update_figure(dir_radio_val, agg_radio_val, start_date, end_date):
-    
-    if agg_radio_val == '15 min':
-        
-        filtered_df = df_15m[(df_15m['Time'].dt.strftime('%Y-%m-%d') >= start_date) 
-                            & (df_15m['Time'].dt.strftime('%Y-%m-%d') <= end_date)]
-        
-    elif agg_radio_val == '30 min':
-        
-        filtered_df = df_30m[(df_30m['Time'].dt.strftime('%Y-%m-%d') >= start_date) 
-                            & (df_30m['Time'].dt.strftime('%Y-%m-%d') <= end_date)]
-        
-    elif agg_radio_val == '1 hour':
-        
-        filtered_df = df_1h[(df_1h['Time'].dt.strftime('%Y-%m-%d') >= start_date) 
-                            & (df_1h['Time'].dt.strftime('%Y-%m-%d') <= end_date)]
-    
-    elif agg_radio_val == '1 day':
-        
-        filtered_df = df_daily[(df_daily['Time'].dt.strftime('%Y-%m-%d') >= start_date) 
-                            & (df_daily['Time'].dt.strftime('%Y-%m-%d') <= end_date)]
-        
-    
-    pie_data = [['Eastbound', np.sum(filtered_df['Eastbound'])], ['Westbound', np.sum(filtered_df['Westbound'])]]
 
-    df_pie = pd.DataFrame(data=pie_data, columns=["names", "values"])
-    
-    
-    if dir_radio_val == 'Eastbound only':
+    if agg_radio_val == "15_min":
+        rule = "15T"
+    elif agg_radio_val == "30_min":
+        rule = "30T"
+    elif agg_radio_val == "1_hour":
+        rule = "1H"
+    elif agg_radio_val == "1_day":
+        rule = "1D"
 
-        fig1 = px.bar(filtered_df, x="Time", y='Eastbound', labels = {"Eastbound":"Count", "day_of_week":"Day of week" }, 
-                      hover_data= ['day_of_week'])
-        fig1.update_traces(marker_color='#636EFA')
+    df_updated = df_update(df=df, rule=rule, start_date=start_date, end_date=end_date)  
     
-    elif dir_radio_val == 'Westbound only':
-    
-        fig1 = px.bar(filtered_df, x="Time", y='Westbound', labels = {"Westbound":"Count", "day_of_week":"Day of week"}, 
-                      hover_data= ['day_of_week'])
-        fig1.update_traces(marker_color='#EF553B')
-    
-    elif dir_radio_val == 'Both directions':
-    
-        fig1 = px.bar(filtered_df, x="Time", y='Both directions', labels = {"Both directions":"Count", "day_of_week":"Day of week"}, 
-                      hover_data= ['Eastbound', 'Westbound', 'day_of_week'])
-        fig1.update_traces(marker_color='#AB63FA')
-    
-    
-    fig2 = px.pie(df_pie, values='values', names='names')
+    if dir_radio_val == "east":
 
-    fig1.update_layout(yaxis_title="Count", transition_duration=500, hoverlabel=dict(font_color="white"))
+        direction = "east"
+        hover_data= ["day_of_week"]
+        marker_color="#636EFA"   # blue
     
-    fig2.update_layout(width=700, height=250, margin=dict(l=50, r=50, b=50, t=0), transition_duration=500)
+    elif dir_radio_val == "west":
 
-    return fig1, fig2
+        direction = "west"
+        hover_data= ["day_of_week"]
+        marker_color="#EF553B"   # red
+
+    elif dir_radio_val == "bi-direction":
+
+        direction = "bi_direction"
+        hover_data = ["east", "west", "day_of_week"]
+        marker_color="#AB63FA"  # purple
+    
+    labels = {"time": "Date", 
+              "bi_direction": "Total",
+              "east": "Eastbound",
+              "west": "Westbound",
+              "day_of_week": "Day of week"}
+
+    fig1 = px.bar(df_updated, 
+                  x=df_updated.index, 
+                  y=direction, 
+                  labels=labels, 
+                  hover_data=hover_data)
+
+    fig1.update_traces(marker_color=marker_color)
+
+    fig1.update_layout(xaxis_title="Date & time", 
+                       yaxis_title="Count", 
+                       transition_duration=500, 
+                       hoverlabel=dict(font_color="white"))
+    
+    return fig1
+    
 
 @app.callback(
     Output('avg-table', 'data'),
     Input('my-date-picker-range', 'start_date'),
     Input('my-date-picker-range', 'end_date'))
+
 def update_table(start_date, end_date):
-    
-    select_data_range = df_daily[(df_daily['Time'].dt.strftime('%Y-%m-%d') >= start_date) 
-                                 & (df_daily['Time'].dt.strftime('%Y-%m-%d') <= end_date)]
-    
-    daily_avg = round(select_data_range.mean(numeric_only=True),1)
 
-    total_vol = round(select_data_range.sum(numeric_only=True),1)
+    df_updated = df_update(df=df, 
+                           rule="1D", 
+                           start_date=start_date, 
+                           end_date=end_date)
 
-    data_table = (total_vol,daily_avg)
+    df_updated.drop(columns="day_of_week", inplace=True)
 
-    table = pd.DataFrame(data_table).T
+    total_vol = df_updated.sum()
+    daily_avg = df_updated.mean()
 
-    table.reset_index(inplace=True)
+    # Calculate percentages
+    perc_east = total_vol.loc["east"] / total_vol.loc["bi_direction"]
+    perc_west = total_vol.loc["west"] / total_vol.loc["bi_direction"]
 
-    table.columns = ['','Total volume','Average daily volume']
-    
-    data_table = table.to_dict("records")
+    perc = pd.Series({"east": perc_east, 
+                      "west": perc_west, 
+                      "bi_direction": 1})
+
+    direction = pd.Series({"east": "Eastbound", 
+                           "west": "Westbound", 
+                           "bi_direction": "Both directions"})
+
+    table = pd.DataFrame((direction, total_vol, daily_avg, perc)).T
+
+    table.columns = ["dir", "total_vol", "daily_avg", "perc"]
+
+    data_table = table.loc[["bi_direction", "east", "west"]].to_dict("records")
     
     return  data_table
 
-    
+
 if __name__ == '__main__':
     app.run(debug=False)

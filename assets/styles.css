@@ -1,6 +1,40 @@
- @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
 
- body {
-     font-family: 'Roboto', serif;
-     margin: 30px 100px;
- }
+body {
+    font-family: 'Roboto', serif;
+    margin: 30px 100px;
+    text-align: center;
+}
+
+#select-date-range {
+    text-align: center;
+    width: 30%;
+    display: inline-block;
+    vertical-align: top;
+}
+
+#select-direction {
+    text-align: center;
+    width: 40%;
+    display: inline-block;
+    vertical-align: top;
+}
+
+#select-resolution {
+    text-align: center;
+    width: 30%;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.DateInput_input, .DateInput_input_1 {
+    height: 30px;
+    text-align: center;
+    font-size: inherit;
+    border-radius: 50px;
+}
+
+#avg-table{
+    width: 60%;
+    margin: auto;
+}
