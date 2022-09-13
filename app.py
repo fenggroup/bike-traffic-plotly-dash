@@ -10,13 +10,26 @@ app = Dash(__name__, title=title)
 # Declare server for Heroku deployment. Needed for Procfile.
 server = app.server
 
-# Read the data set into a pandas dataframe and formats it
-data_file_name = "bike_data.csv"
+# Config bike counter location
+
+# # Dearborn data
+# data_file_name = "bike_data_dearborn.csv"
+# config_direction = {"in": "Eastbound", 
+#                     "out": "Westbound"}
+# loc_msg_markdown = "Location: [Rouge Gateway Trail, Dearborn, MI](https://goo.gl/maps/WzSvLWxtkyoro9oK8)"
+# dates_msg = "Data collection: 5 weeks (2022-06-15 to 2022-07-19)"
+
+# Config for Ann Arbor data
+data_file_name = "bike_data_aa.csv"    
+config_direction = {"in": "Northbound", 
+                    "out": "Southbound"}
+loc_msg_markdown = "Location: N Division, Ann Arbor, MI ([Site photo](https://fenggroup.org/images/respic/bike-counter-a2division.png), [Google Maps](https://goo.gl/maps/1bcfHrqSYbqiRSXa8))"
+# dates_msg = "Data collection: X weeks (2022-08-26 to 2022-mm-dd)"
 
 path = "./data/" + data_file_name
-df = pd.read_csv(path, names=["time", "east", "west"], header=0)
+df = pd.read_csv(path, names=["time", "in", "out"], header=0)
 
-df["bi_direction"] = df["east"] + df["west"]
+df["bi_direction"] = df["in"] + df["out"]
 
 # Convert the time to a pandas datetime object
 df["time"] = pd.to_datetime(df["time"])
@@ -47,8 +60,8 @@ app.layout = html.Div([
     
     html.Div(children=[
              html.H1(children=title), 
-             html.H3(children=dcc.Markdown("Location: [Rouge Gateway Trail, Dearborn, MI](https://goo.gl/maps/WzSvLWxtkyoro9oK8)")),
-             html.H3(children="Data collection: 5 weeks (2022-06-15 to 2022-07-19)"),
+             html.H3(children=dcc.Markdown(loc_msg_markdown)),
+            #  html.H3(children=dates_msg),
              ]),
     
     html.Div(id="select-date-range",
@@ -66,8 +79,8 @@ app.layout = html.Div([
              children=[
              html.H3(children="Select traffic direction"), 
              dcc.RadioItems(options={"bi-direction": "Both directions", 
-                                     "east": "Eastbound", 
-                                     "west": "Westbound"},
+                                     "in": config_direction["in"], 
+                                     "out": config_direction["out"]},
                             value="bi-direction",
                             id='data-dir-radio'),
             ]),
@@ -111,8 +124,9 @@ app.layout = html.Div([
             ]), 
 
     html.Div(children=[
-        html.H4(children=dcc.Markdown("Download the [raw CSV file](http://www.umich.edu/~fredfeng/bike-counter-dearborn-20220615.csv)")),
+        html.H4(children=dcc.Markdown("Download the [data files in CSV](https://github.com/fenggroup/bike-traffic-plotly-dash/tree/main/data)")),
         html.H4(children=dcc.Markdown("[Click here](https://fenggroup.org/bike-counter/) to learn more about our bike counting project.")), 
+        html.H4(children=dcc.Markdown("This dashboard is open source and hosted on [our GitHub repository](https://github.com/fenggroup/bike-traffic-plotly-dash).")), 
         html.H4(children=dcc.Markdown("[Feng Group](https://fenggroup.org/) 2022"))
     ])
     
@@ -138,28 +152,28 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date):
 
     df_updated = df_update(df=df, rule=rule, start_date=start_date, end_date=end_date)  
     
-    if dir_radio_val == "east":
+    if dir_radio_val == "in":
 
-        direction = "east"
+        direction = "in"
         hover_data= ["day_of_week"]
         marker_color="#636EFA"   # blue
     
-    elif dir_radio_val == "west":
+    elif dir_radio_val == "out":
 
-        direction = "west"
+        direction = "out"
         hover_data= ["day_of_week"]
         marker_color="#EF553B"   # red
 
     elif dir_radio_val == "bi-direction":
 
         direction = "bi_direction"
-        hover_data = ["east", "west", "day_of_week"]
+        hover_data = ["in", "out", "day_of_week"]
         marker_color="#AB63FA"  # purple
     
     labels = {"time": "Date", 
               "bi_direction": "Total",
-              "east": "Eastbound",
-              "west": "Westbound",
+              "in": config_direction["in"],
+              "out": config_direction["out"],
               "day_of_week": "Day of week"}
 
     fig1 = px.bar(df_updated, 
@@ -196,22 +210,22 @@ def update_table(start_date, end_date):
     daily_avg = df_updated.mean()
 
     # Calculate percentages
-    perc_east = total_vol.loc["east"] / total_vol.loc["bi_direction"]
-    perc_west = total_vol.loc["west"] / total_vol.loc["bi_direction"]
+    perc_in = total_vol.loc["in"] / total_vol.loc["bi_direction"]
+    perc_out = total_vol.loc["out"] / total_vol.loc["bi_direction"]
 
-    perc = pd.Series({"east": perc_east, 
-                      "west": perc_west, 
+    perc = pd.Series({"in": perc_in, 
+                      "out": perc_out, 
                       "bi_direction": 1})
 
-    direction = pd.Series({"east": "Eastbound", 
-                           "west": "Westbound", 
+    direction = pd.Series({"in": config_direction["in"], 
+                           "out": config_direction["out"], 
                            "bi_direction": "Both directions"})
 
     table = pd.DataFrame((direction, total_vol, daily_avg, perc)).T
 
     table.columns = ["dir", "total_vol", "daily_avg", "perc"]
 
-    data_table = table.loc[["bi_direction", "east", "west"]].to_dict("records")
+    data_table = table.loc[["bi_direction", "in", "out"]].to_dict("records")
     
     return  data_table
 
