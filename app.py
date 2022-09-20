@@ -123,13 +123,6 @@ app.layout = html.Div([
                                   id='avg-table'),
             ]), 
     
-    html.Div(children=[
-             html.H3(children='Hourly bicycle volume by time of day'),
-             dcc.Graph(id='time-of-day')]),
-    
-    html.Div(children=[
-             html.H3(children='Daily bicycle volume by day of week'),
-             dcc.Graph(id='day-of-week')]),
 
     html.Div(children=[
         html.H4(children=dcc.Markdown("Download the [data files in CSV](https://github.com/fenggroup/bike-traffic-plotly-dash/tree/main/data)")),
@@ -236,86 +229,6 @@ def update_table(start_date, end_date):
     data_table = table.loc[["bi_direction", "in", "out"]].to_dict("records")
     
     return  data_table
-
-@app.callback(
-    Output("time-of-day", "figure"),
-    Input("my-date-picker-range", "start_date"),
-    Input("my-date-picker-range", "end_date"))
-
-def update_figure(start_date, end_date):
-    
-    df_time = df_update(df=df, rule="15T", start_date=start_date, end_date=end_date)
-    
-    ctb_time = pd.crosstab(index = [df_time.index.isocalendar().week, df_time.index.day], 
-                           columns  =df_time.index.hour,
-                           rownames=['week', 'day'],
-                           values = df_time.bi_direction, aggfunc = 'sum'
-                           )
-    
-    labels = {"col_0": "Time of day", 
-              "value": "Count"}
-    
-    fig2 = px.strip(data_frame=ctb_time,
-                    labels=labels)
-
-    xticks=np.arange(-0.5, 24, 1) 
-    xlabels=np.arange(0, 25, 1)
-
-    marker_color="#0D2A63"  # dark blue
-
-    fig2['layout'] = {'xaxis':{'tickvals':xticks, 
-                               'ticktext':xlabels,
-                               'showline':True
-                               }
-                      }
-    
-    fig2.update_traces(marker_color=marker_color)
-    fig2.add_trace(px.box(data_frame=ctb_time, points=False).data[0])
-
-    fig2.update_layout(xaxis_title="Time of day", 
-                       yaxis_title="Count", 
-                       transition_duration=500)
-    
-    return fig2
-
-@app.callback(
-    Output("day-of-week", "figure"),
-    Input("my-date-picker-range", "start_date"),
-    Input("my-date-picker-range", "end_date"))
-
-def update_figure(start_date, end_date):
-    
-    df_day = df_update(df=df, rule="15T", start_date=start_date, end_date=end_date)
-
-    ctb_day = pd.crosstab(index = df_day.index.isocalendar().week, 
-                  columns  =df_day.index.day_of_week,
-                  values = df_day.bi_direction, aggfunc = 'sum'
-                  )
-    labels = {"col_0": "Day of week", 
-              "value": "Count"}
-    
-    fig3 = px.strip(data_frame=ctb_day,
-                    labels=labels)
-
-    xticks=np.arange(0, 7, 1)
-    xlabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-
-    fig3['layout'] = {'xaxis':{'tickvals':xticks, 
-                               'ticktext':xlabels,
-                               'showline':True
-                               }
-                      }
-
-    marker_color='rgba(102, 166, 30, 0.7)'  # dark green
-
-    fig3.update_traces(marker_color=marker_color, marker_size=20)
-
-    fig3.update_layout(xaxis_title="Day of week", 
-                       yaxis_title="Count",
-                       yaxis = dict(rangemode = 'tozero'),
-                       transition_duration=500)
-    
-    return fig3
 
 if __name__ == '__main__':
     app.run(debug=False)
