@@ -10,6 +10,9 @@ app = Dash(__name__, title=title)
 # Declare server for Heroku deployment. Needed for Procfile.
 server = app.server
 
+# Set plotly template
+template = "plotly_white"
+
 # Config bike counter location
 
 # # Dearborn data
@@ -127,9 +130,7 @@ app.layout = html.Div([
              html.H3(children='Hourly traffic by time of day'),
              dcc.Graph(id='time-of-day')]),
     
-    html.Div(children=[
-             html.H3(children='Daily traffic by day of week'),
-             dcc.Graph(id='day-of-week')]),
+    html.Div(children=[dcc.Graph(id='day-of-week')]),
 
     html.Div(children=[
         html.H4(children=dcc.Markdown("Download the [data files in CSV](https://github.com/fenggroup/bike-traffic-plotly-dash/tree/main/data)")),
@@ -188,7 +189,8 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date):
                   x=df_updated.index, 
                   y=direction, 
                   labels=labels, 
-                  hover_data=hover_data)
+                  hover_data=hover_data,
+                  template=template)
 
     fig1.update_traces(marker_color=marker_color)
 
@@ -256,7 +258,8 @@ def update_figure(start_date, end_date):
               "value": "Count"}
     
     fig2 = px.strip(data_frame=ctb_time,
-                    labels=labels)
+                    labels=labels,
+                    template=template)
 
     xticks=np.arange(-0.5, 24, 1) 
     xlabels=np.arange(0, 25, 1)
@@ -287,32 +290,27 @@ def update_figure(start_date, end_date):
     
     df_day = df_update(df=df, rule="15T", start_date=start_date, end_date=end_date)
 
-    ctb_day = pd.crosstab(index = df_day.index.isocalendar().week, 
-                  columns  =df_day.index.day_of_week,
-                  values = df_day.bi_direction, aggfunc = 'sum'
-                  )
-    labels = {"col_0": "Day of week", 
-              "value": "Count"}
+    print(df_day.day_of_week)
+
+    ctb_day = pd.crosstab(index=df_day.index.isocalendar().week,
+                          columns=df_day.day_of_week,
+                          values=df_day.bi_direction, 
+                          aggfunc='sum')
+
+    order = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     
-    fig3 = px.strip(data_frame=ctb_day,
-                    labels=labels)
+    fig3 = px.strip(data_frame=ctb_day[order], 
+                    hover_data=["day_of_week"], 
+                    template=template)
 
-    xticks=np.arange(0, 7, 1)
-    xlabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-
-    fig3['layout'] = {'xaxis':{'tickvals':xticks, 
-                               'ticktext':xlabels,
-                               'showline':True
-                               }
-                      }
-
-    marker_color='rgba(102, 166, 30, 0.7)'  # dark green
-
-    fig3.update_traces(marker_color=marker_color, marker_size=20)
+    fig3.update_traces(marker_color='rgba(102, 166, 30, 0.7)',  # dark green
+                       marker_size=20)
 
     fig3.update_layout(xaxis_title="Day of week", 
                        yaxis_title="Count",
-                       yaxis = dict(rangemode = 'tozero'),
+                       title="Daily traffic by day of week",
+                       title_x=0.5,  # center title
+                       yaxis_range=[0,420], 
                        transition_duration=500)
     
     return fig3
