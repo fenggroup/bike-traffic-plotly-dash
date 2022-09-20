@@ -124,11 +124,11 @@ app.layout = html.Div([
             ]), 
     
     html.Div(children=[
-             html.H3(children='Hourly bicycle volume by time of day'),
+             html.H3(children='Hourly traffic by time of day'),
              dcc.Graph(id='time-of-day')]),
     
     html.Div(children=[
-             html.H3(children='Daily bicycle volume by day of week'),
+             html.H3(children='Daily traffic by day of week'),
              dcc.Graph(id='day-of-week')]),
 
     html.Div(children=[
