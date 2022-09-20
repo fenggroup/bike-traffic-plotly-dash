@@ -27,7 +27,7 @@ loc_msg_markdown = "Location: N Division, Ann Arbor, MI ([Site photo](https://fe
 # dates_msg = "Data collection: X weeks (2022-08-26 to 2022-mm-dd)"
 
 path = "./data/" + data_file_name
-df = pd.read_csv(path, names=["time", "in", "out"], header=0)
+df = pd.read_csv(path, names=["time", "in", "out"], skiprows=4)
 
 df["bi_direction"] = df["in"] + df["out"]
 
