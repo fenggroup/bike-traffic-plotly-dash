@@ -44,6 +44,10 @@ df["time"] = pd.to_datetime(df["time"])
 
 df = df.set_index("time")
 
+df["isweekend"] = df.index.day_name().isin(['Saturday', 'Sunday'])
+
+print(df.head(100))
+
 # Set variables for the min and max date that can be selected in the date picker
 min_date_allowed = df.index.date.min()
 max_date_allowed = df.index.date.max()
@@ -131,9 +135,7 @@ app.layout = html.Div([
                                   id='avg-table'),
             ]), 
     
-    html.Div(children=[
-             html.H3(children='Hourly traffic by time of day'),
-             dcc.Graph(id='time-of-day')]),
+    html.Div(children=[dcc.Graph(id='time-of-day')]),
     
     html.Div(children=[dcc.Graph(id='day-of-week')]),
 
@@ -203,7 +205,7 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date):
                        transition_duration=500, 
                        hoverlabel=dict(font_color="white"))
 
-    fig1.update_layout(font_family="Roboto", font_color="black")
+    fig1.update_layout(font_family="Roboto", font_color="black", font_size=14)
     
     return fig1
     
@@ -251,6 +253,10 @@ def update_table(start_date, end_date):
     Input("my-date-picker-range", "end_date"))
 
 def update_figure(start_date, end_date):
+
+    # df = df[df.index.weekday==6]
+
+    print(df.head())
     
     df_time = df_update(df=df, rule="15T", start_date=start_date, end_date=end_date)
     
@@ -277,15 +283,22 @@ def update_figure(start_date, end_date):
                                'showline':True
                                }
                       }
-    
-    fig2.update_traces(marker_color=marker_color)
-    fig2.add_trace(px.box(data_frame=ctb_time, points=False).data[0])
+
+    # fig2.add_trace(px.box(data_frame=ctb_time, points=False).data[0])
+
+    fig2.update_traces(marker_color='rgba(102, 166, 30, 0.4)',
+                       marker_size=10,
+                       jitter=0.7)
 
     fig2.update_layout(xaxis_title="Time of day", 
-                       yaxis_title="Count", 
-                       transition_duration=500)
+                       yaxis_title="Count",
+                       title="Hourly traffic by time of day",
+                       title_x=0.5,  # center title
+                       transition_duration=500,
+                       yaxis_range=[0, ctb_time.max().max()+5], 
+                       template=template)
 
-    fig2.update_layout(font_family="Roboto", font_color="black")
+    fig2.update_layout(font_family="Roboto", font_color="black", font_size=14)
     
     return fig2
 
@@ -298,7 +311,6 @@ def update_figure(start_date, end_date):
     
     df_day = df_update(df=df, rule="15T", start_date=start_date, end_date=end_date)
 
-    print(df_day.day_of_week)
 
     ctb_day = pd.crosstab(index=df_day.index.isocalendar().week,
                           columns=df_day.day_of_week,
@@ -307,21 +319,26 @@ def update_figure(start_date, end_date):
 
     order = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     
+    labels = {"day_of_week": "Day of week", 
+              "value": "Count"}
+
     fig3 = px.strip(data_frame=ctb_day[order], 
+                    labels=labels,
                     hover_data=["day_of_week"], 
                     template=template)
 
     fig3.update_traces(marker_color='rgba(102, 166, 30, 0.7)',  # dark green
-                       marker_size=20)
+                       marker_size=20,
+                       jitter=0.5)
 
     fig3.update_layout(xaxis_title="Day of week", 
                        yaxis_title="Count",
                        title="Daily traffic by day of week",
                        title_x=0.5,  # center title
-                       yaxis_range=[0,420], 
+                       yaxis_range=[0, ctb_day.max().max()+20], 
                        transition_duration=500)
 
-    fig3.update_layout(font_family="Roboto", font_color="black")
+    fig3.update_layout(font_family="Roboto", font_color="black", font_size=14)
     
     return fig3
 
