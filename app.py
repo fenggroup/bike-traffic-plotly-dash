@@ -13,6 +13,11 @@ server = app.server
 # Set plotly template
 template = "plotly_white"
 
+# Set color codes
+color_both_direction = "#507B00"  # green
+color_in = "#636EFA"   # blue
+color_out = "#E6B400"   # yellow
+
 # Config bike counter location
 
 # # Dearborn data
@@ -81,10 +86,10 @@ app.layout = html.Div([
     html.Div(id="select-direction",
              children=[
              html.H3(children="Select traffic direction"), 
-             dcc.RadioItems(options={"bi-direction": "Both directions", 
+             dcc.RadioItems(options={"bi_direction": "Both directions", 
                                      "in": config_direction["in"], 
                                      "out": config_direction["out"]},
-                            value="bi-direction",
+                            value="bi_direction",
                             id='data-dir-radio'),
             ]),
     
@@ -103,12 +108,12 @@ app.layout = html.Div([
     dcc.Graph(id='bar-graph')]),
 
     html.Div(children=[
-             html.H3(children='Bicycle volume on the selected dates'), 
+             html.H3(children='Traffic summary on the selected dates'), 
              dash_table.DataTable(data = table.to_dict("records"), 
                                   columns =[
                                     dict(id='dir', name=''),
-                                    dict(id='total_vol', name='Total volume', type='numeric', format=dash_table.Format.Format().group(True)),
-                                    dict(id='daily_avg', name='Ave. daily volume', type='numeric', format=dash_table.Format.Format(precision=1, scheme=dash_table.Format.Scheme.fixed)),
+                                    dict(id='total_vol', name='Total traffic', type='numeric', format=dash_table.Format.Format().group(True)),
+                                    dict(id='daily_avg', name='Ave. daily traffic', type='numeric', format=dash_table.Format.Format(precision=1, scheme=dash_table.Format.Scheme.fixed)),
                                     dict(id='perc', name='Percent', type='numeric', format=dash_table.FormatTemplate.percentage(1))
                                     ],
                                     style_cell_conditional=[
@@ -155,29 +160,26 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date):
     elif agg_radio_val == "30_min":
         rule = "30T"
     elif agg_radio_val == "1_hour":
-        rule = "1H"
+        rule = "H"
     elif agg_radio_val == "1_day":
-        rule = "1D"
+        rule = "D"
 
     df_updated = df_update(df=df, rule=rule, start_date=start_date, end_date=end_date)  
     
     if dir_radio_val == "in":
 
-        direction = "in"
         hover_data= ["day_of_week"]
-        marker_color="#636EFA"   # blue
+        marker_color = color_in
     
     elif dir_radio_val == "out":
 
-        direction = "out"
         hover_data= ["day_of_week"]
-        marker_color="#EF553B"   # red
+        marker_color = color_out
 
-    elif dir_radio_val == "bi-direction":
+    elif dir_radio_val == "bi_direction":
 
-        direction = "bi_direction"
         hover_data = ["in", "out", "day_of_week"]
-        marker_color="#AB63FA"  # purple
+        marker_color = color_both_direction
     
     labels = {"time": "Date", 
               "bi_direction": "Total",
@@ -187,7 +189,7 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date):
 
     fig1 = px.bar(df_updated, 
                   x=df_updated.index, 
-                  y=direction, 
+                  y=dir_radio_val, 
                   labels=labels, 
                   hover_data=hover_data,
                   template=template)
@@ -196,8 +198,12 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date):
 
     fig1.update_layout(xaxis_title="Date & time", 
                        yaxis_title="Count", 
+                       title="Bike traffic counts by date & time",
+                       title_x=0.5,  # center title
                        transition_duration=500, 
                        hoverlabel=dict(font_color="white"))
+
+    fig1.update_layout(font_family="Roboto", font_color="black")
     
     return fig1
     
@@ -210,7 +216,7 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date):
 def update_table(start_date, end_date):
 
     df_updated = df_update(df=df, 
-                           rule="1D", 
+                           rule="D", 
                            start_date=start_date, 
                            end_date=end_date)
 
@@ -278,6 +284,8 @@ def update_figure(start_date, end_date):
     fig2.update_layout(xaxis_title="Time of day", 
                        yaxis_title="Count", 
                        transition_duration=500)
+
+    fig2.update_layout(font_family="Roboto", font_color="black")
     
     return fig2
 
@@ -312,8 +320,11 @@ def update_figure(start_date, end_date):
                        title_x=0.5,  # center title
                        yaxis_range=[0,420], 
                        transition_duration=500)
+
+    fig3.update_layout(font_family="Roboto", font_color="black")
     
     return fig3
 
 if __name__ == '__main__':
     app.run(debug=False)
+    # app.run(debug=True)
