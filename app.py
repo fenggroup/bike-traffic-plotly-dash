@@ -46,8 +46,6 @@ df = df.set_index("time")
 
 df["isweekend"] = df.index.day_name().isin(['Saturday', 'Sunday'])
 
-print(df.head(100))
-
 # Set variables for the min and max date that can be selected in the date picker
 min_date_allowed = df.index.date.min()
 max_date_allowed = df.index.date.max()
@@ -259,10 +257,7 @@ def update_table(start_date, end_date):
     Input("my-date-picker-range", "end_date"))
 
 def update_figure(dir_radio_val, start_date, end_date):
-
-    # df = df[df.index.weekday==6]
-
-    
+   
     df_time = df_update(df=df, rule="15T", start_date=start_date, end_date=end_date)
        
     ctb_time = pd.crosstab(index = [df_time.index.isocalendar().week, df_time.index.day], 
@@ -273,9 +268,10 @@ def update_figure(dir_radio_val, start_date, end_date):
     
     labels = {"col_0": "Time of day", 
               "value": "Count"}
-    
-    fig2 = px.strip(data_frame=ctb_time,
-                    labels=labels)
+
+    fig2 = px.box(data_frame=ctb_time,
+                    labels=labels, 
+                    points=False)
 
     xticks=np.arange(-0.5, 24, 1) 
     xlabels=np.arange(0, 25, 1)
@@ -288,7 +284,7 @@ def update_figure(dir_radio_val, start_date, end_date):
                                }
                       }
 
-    fig2.add_trace(px.box(data_frame=ctb_time, points=False).data[0])
+    fig2.add_trace(px.strip(data_frame=ctb_time, labels=labels).data[0])
 
     alpha = 0.4
 
@@ -380,5 +376,5 @@ def update_figure(dir_radio_val, start_date, end_date):
     return fig3
 
 if __name__ == '__main__':
-    # app.run(debug=False)
-    app.run(debug=True)
+    app.run(debug=False)
+    # app.run(debug=True)
