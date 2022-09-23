@@ -20,14 +20,14 @@ server = app.server
 # dates_msg = "Data collection: 5 weeks (2022-06-15 to 2022-07-19)"
 
 # Config for Ann Arbor data
-data_file_name = "bike_data_aa.csv"    
+data_file_name = "export_data_domain_7992.xlsx"
 config_direction = {"in": "Northbound", 
                     "out": "Southbound"}
 loc_msg_markdown = "Location: N Division, Ann Arbor, MI ([Site photo](https://fenggroup.org/images/respic/bike-counter-a2division.png), [Google Maps](https://goo.gl/maps/1bcfHrqSYbqiRSXa8))"
 # dates_msg = "Data collection: X weeks (2022-08-26 to 2022-mm-dd)"
 
 path = "./data/" + data_file_name
-df = pd.read_csv(path, names=["time", "in", "out"], skiprows=4)
+df = pd.read_excel(path, names=["time", "in", "out"], skiprows=3)
 
 df["bi_direction"] = df["in"] + df["out"]
 
@@ -36,9 +36,10 @@ df["time"] = pd.to_datetime(df["time"])
 
 df = df.set_index("time")
 
-# Set variables for the min and max date that can be selected in the date picker
-min_date_allowed = df.index.date.min()
-max_date_allowed = df.index.date.max()
+# Set date range availability
+min_date_allowed = "2022-08-28"   # the first full week of data collection in AA
+max_date_allowed = "2022-09-21"
+df = df[min_date_allowed : max_date_allowed]
 
 # A function to update the dataframe based on the specified resample rule and date range
 def df_update(df, rule, start_date, end_date):
