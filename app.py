@@ -10,6 +10,14 @@ app = Dash(__name__, title=title)
 # Declare server for Heroku deployment. Needed for Procfile.
 server = app.server
 
+# Set plotly template
+template = "plotly_white"
+
+# Set color codes
+color_both_direction = 'rgb(80, 123, 0)' # "#507B00"  # green
+color_in = 'rgb(99, 110, 250)'   # blue
+color_out = 'rgb(230, 180, 0)'   # yellow
+
 # Config bike counter location
 
 # # Dearborn data
@@ -54,6 +62,12 @@ def df_update(df, rule, start_date, end_date):
     return df_filtered
 
 
+def rgb2rgba(rgb, alpha):
+
+    rgba = 'rgba' + rgb[3:-1]  + ', ' + str(alpha) + ')'
+
+    return rgba
+
 # Set up a preliminary dataframe for the data table
 table = pd.DataFrame(np.zeros((3,4)))
 
@@ -79,10 +93,10 @@ app.layout = html.Div([
     html.Div(id="select-direction",
              children=[
              html.H3(children="Select traffic direction"), 
-             dcc.RadioItems(options={"bi-direction": "Both directions", 
+             dcc.RadioItems(options={"bi_direction": "Both directions", 
                                      "in": config_direction["in"], 
                                      "out": config_direction["out"]},
-                            value="bi-direction",
+                            value="bi_direction",
                             id='data-dir-radio'),
             ]),
     
@@ -98,15 +112,15 @@ app.layout = html.Div([
             ]),
 
     html.Div(children=[
-    dcc.Graph(id='bar-graph')]),
+    dcc.Graph(id='bar-graph',style={"margin-top": "20px", "margin-bottom": "40px"})]),
 
     html.Div(children=[
-             html.H3(children='Bicycle volume on the selected dates'), 
+             html.H3(children='Traffic summary on the selected dates'), 
              dash_table.DataTable(data = table.to_dict("records"), 
                                   columns =[
                                     dict(id='dir', name=''),
-                                    dict(id='total_vol', name='Total volume', type='numeric', format=dash_table.Format.Format().group(True)),
-                                    dict(id='daily_avg', name='Ave. daily volume', type='numeric', format=dash_table.Format.Format(precision=1, scheme=dash_table.Format.Scheme.fixed)),
+                                    dict(id='total_vol', name='Total traffic', type='numeric', format=dash_table.Format.Format().group(True)),
+                                    dict(id='daily_avg', name='Ave. daily traffic', type='numeric', format=dash_table.Format.Format(precision=1, scheme=dash_table.Format.Scheme.fixed)),
                                     dict(id='perc', name='Percent', type='numeric', format=dash_table.FormatTemplate.percentage(1))
                                     ],
                                     style_cell_conditional=[
@@ -124,9 +138,11 @@ app.layout = html.Div([
                                   id='avg-table'),
             ]), 
     
+    html.Div(children=[dcc.Graph(id='time-of-day', style={"margin-top": "-80px", "margin-bottom": "50px"})]),
+    html.Div(children=[dcc.Graph(id='day-of-week')]),
 
     html.Div(children=[
-        html.H4(children=dcc.Markdown("Download the [data files in CSV](https://github.com/fenggroup/bike-traffic-plotly-dash/tree/main/data)")),
+        html.H4(children=dcc.Markdown("Download the [data files](https://github.com/fenggroup/bike-traffic-plotly-dash/tree/main/data)")),
         html.H4(children=dcc.Markdown("[Click here](https://fenggroup.org/bike-counter/) to learn more about our bike counting project.")), 
         html.H4(children=dcc.Markdown("This dashboard is open source and hosted on [our GitHub repository](https://github.com/fenggroup/bike-traffic-plotly-dash).")), 
         html.H4(children=dcc.Markdown("[Feng Group](https://fenggroup.org/) 2022"))
@@ -148,29 +164,26 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date):
     elif agg_radio_val == "30_min":
         rule = "30T"
     elif agg_radio_val == "1_hour":
-        rule = "1H"
+        rule = "H"
     elif agg_radio_val == "1_day":
-        rule = "1D"
+        rule = "D"
 
     df_updated = df_update(df=df, rule=rule, start_date=start_date, end_date=end_date)  
     
     if dir_radio_val == "in":
 
-        direction = "in"
         hover_data= ["day_of_week"]
-        marker_color="#636EFA"   # blue
+        marker_color = color_in
     
     elif dir_radio_val == "out":
 
-        direction = "out"
         hover_data= ["day_of_week"]
-        marker_color="#EF553B"   # red
+        marker_color = color_out
 
-    elif dir_radio_val == "bi-direction":
+    elif dir_radio_val == "bi_direction":
 
-        direction = "bi_direction"
         hover_data = ["in", "out", "day_of_week"]
-        marker_color="#AB63FA"  # purple
+        marker_color = color_both_direction
     
     labels = {"time": "Date", 
               "bi_direction": "Total",
@@ -180,16 +193,23 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date):
 
     fig1 = px.bar(df_updated, 
                   x=df_updated.index, 
-                  y=direction, 
+                  y=dir_radio_val, 
                   labels=labels, 
-                  hover_data=hover_data)
+                  hover_data=hover_data,
+                  template=template)
 
     fig1.update_traces(marker_color=marker_color)
 
     fig1.update_layout(xaxis_title="Date & time", 
                        yaxis_title="Count", 
+                       title="Bike traffic counts by date & time",
+                       title_x=0.5,  # center title
                        transition_duration=500, 
                        hoverlabel=dict(font_color="white"))
+
+    fig1.update_layout(font_family="Roboto", font_color="black", font_size=16)
+    
+    fig1.update_layout(font_family="Roboto", font_color="black", font_size=16)
     
     return fig1
     
@@ -202,7 +222,7 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date):
 def update_table(start_date, end_date):
 
     df_updated = df_update(df=df, 
-                           rule="1D", 
+                           rule="D", 
                            start_date=start_date, 
                            end_date=end_date)
 
@@ -231,5 +251,131 @@ def update_table(start_date, end_date):
     
     return  data_table
 
+@app.callback(
+    Output("time-of-day", "figure"),
+    Input("data-dir-radio", "value"),
+    Input("my-date-picker-range", "start_date"),
+    Input("my-date-picker-range", "end_date"))
+
+def update_figure(dir_radio_val, start_date, end_date):
+   
+    df_time = df_update(df=df, rule="15T", start_date=start_date, end_date=end_date)
+       
+    ctb_time = pd.crosstab(index = [df_time.index.isocalendar().week, df_time.index.day], 
+                           columns  =df_time.index.hour,
+                           rownames=['week', 'day'],
+                           values = df_time[dir_radio_val], 
+                           aggfunc = 'sum')
+    
+    labels = {"col_0": "Time of day", 
+              "value": "Count"}
+
+    fig2 = px.box(data_frame=ctb_time,
+                    labels=labels, 
+                    points=False)
+
+    xticks=np.arange(-0.5, 24, 1) 
+    xlabels=np.arange(0, 25, 1)
+
+    marker_color="#0D2A63"  # dark blue
+
+    fig2['layout'] = {'xaxis':{'tickvals':xticks, 
+                               'ticktext':xlabels,
+                               'showline':True
+                               }
+                      }
+
+    fig2.add_trace(px.strip(data_frame=ctb_time, labels=labels).data[0])
+
+    alpha = 0.4
+
+    if dir_radio_val == "in":
+
+        marker_color = rgb2rgba(color_in, alpha)
+    
+    elif dir_radio_val == "out":
+
+        marker_color = rgb2rgba(color_out, alpha)
+
+    elif dir_radio_val == "bi_direction":
+
+        marker_color = rgb2rgba(color_both_direction, alpha)
+    
+    fig2.update_traces(marker_color=marker_color,   # 'rgba(102, 166, 30, 0.4)'
+                       marker_size=10,
+                       jitter=0.7)
+
+    fig2.update_layout(xaxis_title="Time of day", 
+                       yaxis_title="Count",
+                       title="Hourly traffic by time of day",
+                       title_x=0.5,  # center title
+                       transition_duration=500,
+                       yaxis_range=[0, ctb_time.max().max()+5], 
+                       height=500,
+                       template=template)
+
+    fig2.update_layout(font_family="Roboto", font_color="black", font_size=16)
+    
+    return fig2
+
+@app.callback(
+    Output("day-of-week", "figure"),
+    Input("data-dir-radio", "value"),
+    Input("my-date-picker-range", "start_date"),
+    Input("my-date-picker-range", "end_date"))
+
+def update_figure(dir_radio_val, start_date, end_date):
+    
+    df_day = df_update(df=df, rule="15T", start_date=start_date, end_date=end_date)
+
+
+    ctb_day = pd.crosstab(index=df_day.index.isocalendar().week,
+                          columns=df_day.day_of_week,
+                          values = df_day[dir_radio_val],
+                          aggfunc='sum')
+
+    order = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    
+    labels = {"day_of_week": "Day of week", 
+              "value": "Count"}
+
+    fig3 = px.strip(data_frame=ctb_day[order], 
+                    labels=labels,
+                    hover_data=["day_of_week"], 
+                    template=template)
+
+    fig3.add_trace(px.box(data_frame=ctb_day, points=False).data[0])
+
+    alpha = 0.7
+
+    if dir_radio_val == "in":
+
+        marker_color = rgb2rgba(color_in, alpha)
+    
+    elif dir_radio_val == "out":
+
+        marker_color = rgb2rgba(color_out, alpha)
+
+    elif dir_radio_val == "bi_direction":
+
+        marker_color = rgb2rgba(color_both_direction, alpha)
+
+    fig3.update_traces(marker_color=marker_color,
+                       marker_size=20,
+                       jitter=0.5)
+
+    fig3.update_layout(xaxis_title="Day of week", 
+                       yaxis_title="Count",
+                       title="Daily traffic by day of week",
+                       title_x=0.5,  # center title
+                       yaxis_range=[0, ctb_day.max().max()+20], 
+                       transition_duration=500,
+                       height=500)
+
+    fig3.update_layout(font_family="Roboto", font_color="black", font_size=16)
+    
+    return fig3
+
 if __name__ == '__main__':
     app.run(debug=False)
+    # app.run(debug=True)
