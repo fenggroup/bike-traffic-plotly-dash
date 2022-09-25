@@ -45,9 +45,12 @@ df["time"] = pd.to_datetime(df["time"])
 df = df.set_index("time")
 
 # Set date range availability
-min_date_allowed = "2022-08-28"   # the first full week of data collection in AA
+min_date_allowed = "2022-08-26"   # the first full *day* of data collection in AA
+# min_date_allowed = "2022-08-28"   # the first full *week* of data collection in AA
 max_date_allowed = "2022-09-21"
 df = df[min_date_allowed : max_date_allowed]
+
+print(max_date_allowed)
 
 # A function to update the dataframe based on the specified resample rule and date range
 def df_update(df, rule, start_date, end_date):
@@ -61,12 +64,9 @@ def df_update(df, rule, start_date, end_date):
 
     return df_filtered
 
-
+# convert rgb to rgba with transparency (alpha) value
 def rgb2rgba(rgb, alpha):
-
-    rgba = 'rgba' + rgb[3:-1]  + ', ' + str(alpha) + ')'
-
-    return rgba
+    return 'rgba' + rgb[3:-1]  + ', ' + str(alpha) + ')'
 
 # Set up a preliminary dataframe for the data table
 table = pd.DataFrame(np.zeros((3,4)))
@@ -86,7 +86,8 @@ app.layout = html.Div([
                                  min_date_allowed = min_date_allowed,
                                  max_date_allowed = max_date_allowed,
                                  start_date = min_date_allowed,
-                                 end_date = max_date_allowed, 
+                                 end_date = max_date_allowed,
+                                 first_day_of_week=1,  # start on Mondays
                                  minimum_nights=0,),
              ]),
     
@@ -334,17 +335,17 @@ def update_figure(dir_radio_val, start_date, end_date):
                           values = df_day[dir_radio_val],
                           aggfunc='sum')
 
-    order = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-    
+    category_orders = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
     labels = {"day_of_week": "Day of week", 
               "value": "Count"}
 
-    fig3 = px.strip(data_frame=ctb_day[order], 
+    fig3 = px.box(data_frame=ctb_day, 
+                    category_orders=category_orders,
                     labels=labels,
                     hover_data=["day_of_week"], 
-                    template=template)
-
-    fig3.add_trace(px.box(data_frame=ctb_day, points=False).data[0])
+                    template=template, 
+                    points="all")
 
     alpha = 0.7
 
@@ -362,7 +363,7 @@ def update_figure(dir_radio_val, start_date, end_date):
 
     fig3.update_traces(marker_color=marker_color,
                        marker_size=20,
-                       jitter=0.5)
+                       jitter=0.3)
 
     fig3.update_layout(xaxis_title="Day of week", 
                        yaxis_title="Count",
@@ -373,9 +374,12 @@ def update_figure(dir_radio_val, start_date, end_date):
                        height=500)
 
     fig3.update_layout(font_family="Roboto", font_color="black", font_size=16)
+
+
+    fig3.update_xaxes(categoryorder='array', categoryarray=category_orders)
     
     return fig3
 
 if __name__ == '__main__':
-    app.run(debug=False)
-    # app.run(debug=True)
+    # app.run(debug=False)
+    app.run(debug=True)
