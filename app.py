@@ -47,10 +47,10 @@ df = df.set_index("time")
 # Set date range availability
 min_date_allowed = "2022-08-26"   # the first full *day* of data collection in AA
 # min_date_allowed = "2022-08-28"   # the first full *week* of data collection in AA
-max_date_allowed = "2022-09-21"
-df = df[min_date_allowed : max_date_allowed]
 
-print(max_date_allowed)
+max_date_allowed = "2022-09-21"
+
+df = df[min_date_allowed : max_date_allowed]
 
 # A function to update the dataframe based on the specified resample rule and date range
 def df_update(df, rule, start_date, end_date):
@@ -70,6 +70,11 @@ def rgb2rgba(rgb, alpha):
 
 # Set up a preliminary dataframe for the data table
 table = pd.DataFrame(np.zeros((3,4)))
+
+# Set font style for all figures
+figure_font = dict(family='Roboto',
+                   size=16, 
+                   color='black')
 
 app.layout = html.Div([
     
@@ -152,11 +157,11 @@ app.layout = html.Div([
 ])
 
 @app.callback(
-    Output("bar-graph", "figure"),
-    Input("data-dir-radio", "value"),
-    Input("data-agg-radio", "value"),
-    Input("my-date-picker-range", "start_date"),
-    Input("my-date-picker-range", "end_date"))
+    Output(component_id='bar-graph', component_property='figure'),
+    Input(component_id='data-dir-radio', component_property='value'),
+    Input(component_id='data-agg-radio', component_property='value'),
+    Input(component_id='my-date-picker-range', component_property='start_date'),
+    Input(component_id='my-date-picker-range', component_property='end_date'))
 
 def update_figure(dir_radio_val, agg_radio_val, start_date, end_date):
 
@@ -203,22 +208,27 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date):
 
     fig1.update_layout(xaxis_title="Date & time", 
                        yaxis_title="Count", 
-                       title="Bike traffic counts by date & time",
+                       title="<b>Bike traffic counts by date & time</b>",
                        title_x=0.5,  # center title
                        transition_duration=500, 
+                       font=figure_font,
                        hoverlabel=dict(font_color="white"))
-
-    fig1.update_layout(font_family="Roboto", font_color="black", font_size=16)
+       
+    # number of days in the selected date range
+    numdays = (df_updated.index.max() - df_updated.index.min()).days
     
-    fig1.update_layout(font_family="Roboto", font_color="black", font_size=16)
+    # Disable showing time of day on x-axis in the daily bar chat.
+    # instead, show everyday once (delta tick of 1 day)
+    if (agg_radio_val == "1_day") and (numdays <= 7):
+        fig1.update_xaxes(dtick="d1", tickformat="%b%e\n%Y")
     
     return fig1
     
 
 @app.callback(
-    Output('avg-table', 'data'),
-    Input('my-date-picker-range', 'start_date'),
-    Input('my-date-picker-range', 'end_date'))
+    Output(component_id='avg-table', component_property='data'),
+    Input(component_id='my-date-picker-range', component_property='start_date'),
+    Input(component_id='my-date-picker-range', component_property='end_date'))
 
 def update_table(start_date, end_date):
 
@@ -253,10 +263,10 @@ def update_table(start_date, end_date):
     return  data_table
 
 @app.callback(
-    Output("time-of-day", "figure"),
-    Input("data-dir-radio", "value"),
-    Input("my-date-picker-range", "start_date"),
-    Input("my-date-picker-range", "end_date"))
+    Output(component_id='time-of-day', component_property='figure'),
+    Input(component_id='data-dir-radio', component_property='value'),
+    Input(component_id='my-date-picker-range', component_property='start_date'),
+    Input(component_id='my-date-picker-range', component_property='end_date'))
 
 def update_figure(dir_radio_val, start_date, end_date):
    
@@ -272,13 +282,11 @@ def update_figure(dir_radio_val, start_date, end_date):
               "value": "Count"}
 
     fig2 = px.box(data_frame=ctb_time,
-                    labels=labels, 
-                    points=False)
+                  labels=labels, 
+                  points=False)
 
     xticks=np.arange(-0.5, 24, 1) 
     xlabels=np.arange(0, 25, 1)
-
-    marker_color="#0D2A63"  # dark blue
 
     fig2['layout'] = {'xaxis':{'tickvals':xticks, 
                                'ticktext':xlabels,
@@ -302,28 +310,27 @@ def update_figure(dir_radio_val, start_date, end_date):
 
         marker_color = rgb2rgba(color_both_direction, alpha)
     
-    fig2.update_traces(marker_color=marker_color,   # 'rgba(102, 166, 30, 0.4)'
+    fig2.update_traces(marker_color=marker_color,
                        marker_size=10,
                        jitter=0.7)
 
     fig2.update_layout(xaxis_title="Time of day", 
                        yaxis_title="Count",
-                       title="Hourly traffic by time of day",
+                       title="<b>Hourly traffic by time of day</b>",
                        title_x=0.5,  # center title
                        transition_duration=500,
+                       font=figure_font,
                        yaxis_range=[0, ctb_time.max().max()+5], 
                        height=500,
                        template=template)
-
-    fig2.update_layout(font_family="Roboto", font_color="black", font_size=16)
     
     return fig2
 
 @app.callback(
-    Output("day-of-week", "figure"),
-    Input("data-dir-radio", "value"),
-    Input("my-date-picker-range", "start_date"),
-    Input("my-date-picker-range", "end_date"))
+    Output(component_id='day-of-week', component_property='figure'),
+    Input(component_id='data-dir-radio', component_property='value'),
+    Input(component_id='my-date-picker-range', component_property='start_date'),
+    Input(component_id='my-date-picker-range', component_property='end_date'))
 
 def update_figure(dir_radio_val, start_date, end_date):
     
@@ -367,14 +374,12 @@ def update_figure(dir_radio_val, start_date, end_date):
 
     fig3.update_layout(xaxis_title="Day of week", 
                        yaxis_title="Count",
-                       title="Daily traffic by day of week",
+                       title="<b>Daily traffic by day of week</b>",
                        title_x=0.5,  # center title
                        yaxis_range=[0, ctb_day.max().max()+20], 
                        transition_duration=500,
+                       font=figure_font,
                        height=500)
-
-    fig3.update_layout(font_family="Roboto", font_color="black", font_size=16)
-
 
     fig3.update_xaxes(categoryorder='array', categoryarray=category_orders)
     
