@@ -2,7 +2,7 @@ from dash import dash, Dash, html, dcc
 import dash
 
 
-title = "Bicycle Traffic Dashboard"
+title = 'Bicycle Traffic Dashboard'
 
 app = Dash(__name__, title=title, use_pages=True)
 
@@ -10,7 +10,7 @@ app = Dash(__name__, title=title, use_pages=True)
 server = app.server
 
 # Set plotly template
-template = "plotly_white"
+template = 'plotly_white'
 
 
 
@@ -32,4 +32,5 @@ app.layout = html.Div([
 ])
 
 if __name__ == '__main__':
-	app.run_server(debug=True)
+    app.run(debug=False)
+    # app.run(debug=True)
