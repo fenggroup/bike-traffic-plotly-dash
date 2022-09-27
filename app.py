@@ -109,9 +109,9 @@ app.layout = html.Div([
     html.Div(id='select-resolution',
              children=[
              html.H3(children='Select data resolution'), 
-             dcc.RadioItems(options={'1_day': '1 day',
-                                     '1_hour': '1 hour', 
-                                     '30_min': '30 min',
+             dcc.RadioItems(options={'1_week': 'weekly',
+                                     '1_day': 'daily',
+                                     '1_hour': 'hourly', 
                                      '15_min': '15 min'}, 
                             value='1_day',
                             id='data-agg-radio'),
@@ -167,12 +167,12 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date):
 
     if agg_radio_val == '15_min':
         rule = '15T'
-    elif agg_radio_val == '30_min':
-        rule = '30T'
     elif agg_radio_val == '1_hour':
         rule = 'H'
     elif agg_radio_val == '1_day':
         rule = 'D'
+    elif agg_radio_val == '1_week':
+        rule = 'W'
 
     df_updated = df_update(df=df, rule=rule, start_date=start_date, end_date=end_date)  
     
