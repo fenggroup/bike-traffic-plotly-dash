@@ -157,7 +157,8 @@ layout = html.Div([
                                   id='avg-table'),
             ]), 
     
-    html.Div(children=[dcc.Graph(id='time-of-day', style={'margin-top': '-80px', 'margin-bottom': '50px'})]),
+    html.Div(children=[dcc.Graph(id='avg-hour-traffic', style={'margin-top': '-80px', 'margin-bottom': '50px'})]),
+    html.Div(children=[dcc.Graph(id='time-of-day')]),
     html.Div(children=[dcc.Graph(id='day-of-week')]),
 
     html.Div(children=[
@@ -430,6 +431,50 @@ def update_figure(dir_radio_val, start_date, end_date):
     fig3.update_xaxes(categoryorder='array', categoryarray=category_orders)
     
     return fig3
+
+@callback(
+    Output(component_id='avg-hour-traffic', component_property='figure'),
+    Input(component_id='data-dir-radio', component_property='value'),
+    Input(component_id='my-date-picker-range', component_property='start_date'),
+    Input(component_id='my-date-picker-range', component_property='end_date'))
+    
+def update_figure(dir_radio_val, start_date, end_date):
+    
+    df_updated = df_update(df=df, rule='H', start_date=start_date, end_date=end_date)
+
+    ctb_time = pd.crosstab(index = df_updated.day_of_week, 
+                           columns = df_updated.index.hour,
+                           rownames=['day of week'],
+                           values = df_updated[dir_radio_val], 
+                           aggfunc = 'mean')
+
+    labels = {'col_0': 'Time of day', 
+              'value': 'Count'}
+
+    fig4 = px.line(ctb_time.T,
+                       labels = labels)
+
+    xticks=np.arange(-0.5, 24, 1) 
+    xlabels=np.arange(0, 25, 1)
+
+    fig4['layout'] = {'xaxis':{'tickvals':xticks, 
+                      'ticktext':xlabels,
+                      'showline':True
+                            }
+                      }
+
+    fig4.update_layout(xaxis_title='Time of day', 
+                       yaxis_title='Count',
+                       title='<b>Average hourly traffic by time of day</b>',
+                       title_x=0.5,  # center title
+                       transition_duration=500,
+                       font=figure_font,
+                       yaxis_range=[0, ctb_time.max().max()+5], 
+                       height=500,
+                       template=template)
+    
+    return fig4
+
 
 if __name__ == '__main__':
     # app.run(debug=False)
