@@ -259,7 +259,8 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date):
                        title_x=0.5,  # center title
                        transition_duration=500, 
                        font=figure_font,
-                       hoverlabel=dict(font_color='white'))
+                       hoverlabel=dict(font_color='white'),
+                       modebar_remove=['zoom', 'pan', 'select','lasso2d', 'zoomIn', 'zoomOut', 'autoScale'])
        
     # number of days in the selected date range
     numdays = (df_updated.index.max() - df_updated.index.min()).days
@@ -369,7 +370,8 @@ def update_figure(dir_radio_val, start_date, end_date):
                        font=figure_font,
                        yaxis_range=[0, ctb_time.max().max()+5], 
                        height=500,
-                       template=template)
+                       template=template,
+                       modebar_remove=['zoom', 'pan', 'select','lasso2d', 'zoomIn', 'zoomOut', 'autoScale'])
     
     return fig2
 
@@ -426,7 +428,8 @@ def update_figure(dir_radio_val, start_date, end_date):
                        yaxis_range=[0, ctb_day.max().max()+20], 
                        transition_duration=500,
                        font=figure_font,
-                       height=500)
+                       height=500,
+                       modebar_remove=['zoom', 'pan', 'select','lasso2d', 'zoomIn', 'zoomOut', 'autoScale'])
 
     fig3.update_xaxes(categoryorder='array', categoryarray=category_orders)
     
@@ -471,7 +474,8 @@ def update_figure(dir_radio_val, start_date, end_date):
                        font=figure_font,
                        yaxis_range=[0, ctb_time.max().max()+5], 
                        height=500,
-                       template=template)
+                       template=template,
+                       modebar_remove=['zoom', 'pan', 'select','lasso2d', 'zoomIn', 'zoomOut', 'autoScale'])
     
     return fig4
 
