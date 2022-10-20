@@ -131,7 +131,9 @@ layout = html.Div([
             ]),
 
     html.Div(children=[
-    dcc.Graph(id='bar-graph',style={'margin-top': '20px', 'margin-bottom': '40px'})]),
+    dcc.Graph(id='bar-graph',style={'margin-top': '20px', 'margin-bottom': '40px'},
+    config = {'toImageButtonOptions': {'format': 'png','filename': 'bar_chart', 'height': 350,'width': 750,'scale': 10}}
+    )]),
 
     html.Div(children=[
              html.H3(children='Traffic summary on the selected dates'), 
@@ -157,9 +159,12 @@ layout = html.Div([
                                   id='avg-table'),
             ]), 
     
-    html.Div(children=[dcc.Graph(id='avg-hour-traffic', style={'margin-top': '-80px', 'margin-bottom': '50px'})]),
-    html.Div(children=[dcc.Graph(id='time-of-day')]),
-    html.Div(children=[dcc.Graph(id='day-of-week')]),
+    html.Div(children=[dcc.Graph(id='avg-hour-traffic', style={'margin-top': '-80px', 'margin-bottom': '50px'},
+                                config = {'toImageButtonOptions': {'format': 'png','filename': 'avg_hourly_traffic_chart', 'height': 350,'width': 750,'scale': 10}})]),
+    html.Div(children=[dcc.Graph(id='time-of-day',
+                                config = {'toImageButtonOptions': {'format': 'png','filename': 'time_of_day_chart', 'height': 350,'width': 750,'scale': 10}})]),
+    html.Div(children=[dcc.Graph(id='day-of-week',
+                                config = {'toImageButtonOptions': {'format': 'png','filename': 'day_of_week_chart', 'height': 350,'width': 750,'scale': 10}})]),
 
     html.Div(children=[
         html.H4(children=dcc.Markdown('Download the [data files](https://github.com/fenggroup/bike-traffic-plotly-dash/tree/main/data)')),
