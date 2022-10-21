@@ -20,28 +20,23 @@ color_both_direction = 'rgb(80, 123, 0)' # "#507B00"  # green
 color_in = 'rgb(99, 110, 250)'   # blue
 color_out = 'rgb(230, 180, 0)'   # yellow
 
-# # Dearborn data
-data_file_name = "bike_data_dearborn.xlsx"
-config_direction = {"in": "Eastbound", 
-                    "out": "Westbound"}
-loc_msg_markdown = "Location: [Rouge Gateway Trail, Dearborn, MI](https://goo.gl/maps/WzSvLWxtkyoro9oK8)"
-dates_msg = "Data collection: 5 weeks (2022-06-15 to 2022-07-19)"
-# Set date range availability
-min_date_allowed = "2022-06-15"   # the first full *day* of data collection in Dearborn
+# A function to pre-prossess the raw data from bike counter to a pandas dataframe
+def df_preprocess(data_file_name, date_range):
 
-max_date_allowed = "2022-07-19"
+    path = "./data/" + data_file_name
 
-path = "./data/" + data_file_name
-df = pd.read_excel(path, names=["time", "in", "out"], skiprows=3)
+    df = pd.read_excel(path, names=["time", "in", "out"], skiprows=3)
 
-df["bi_direction"] = df["in"] + df["out"]
+    df["bi_direction"] = df["in"] + df["out"]
 
-# Convert the time to a pandas datetime object
-df["time"] = pd.to_datetime(df["time"])
+    # Convert the time to a pandas datetime object
+    df["time"] = pd.to_datetime(df["time"])
 
-df = df.set_index("time")
+    df = df.set_index("time")
 
-df = df[min_date_allowed : max_date_allowed]
+    df = df[date_range[0] : date_range[1]]
+
+    return df
 
 # A function to update the dataframe based on the specified resample rule and date range
 def df_update(df, rule, start_date, end_date):
@@ -90,118 +85,130 @@ home_layout = html.Div(children=[
 
 ])
 
-layout = html.Div([
-    
-    html.Div(children=[
-             html.H3(children=dcc.Markdown(loc_msg_markdown)),
-             html.H3(children=dates_msg),
-             ]),
-    
-    html.Div(id='select-date-range',
-             children=[
-             html.H3(children='Select dates'), 
-             dcc.DatePickerRange(id='my-date-picker-range',
-                                 min_date_allowed = min_date_allowed,
-                                 max_date_allowed = max_date_allowed,
-                                 start_date = min_date_allowed,
-                                 end_date = max_date_allowed,
-                                 first_day_of_week=1,  # start on Mondays
-                                 minimum_nights=0,),
-             ]),
-    
-    html.Div(id='select-direction',
-             children=[
-             html.H3(children='Select traffic direction'), 
-             dcc.RadioItems(options={'bi_direction': 'Both directions', 
-                                     'in': config_direction['in'], 
-                                     'out': config_direction['out']},
-                            value='bi_direction',
-                            id='data-dir-radio'),
-            ]),
-    
-    html.Div(id='select-resolution',
-             children=[
-             html.H3(children='Select data resolution'), 
-             dcc.RadioItems(options={'1_week': 'weekly',
-                                     '1_day': 'daily',
-                                     '1_hour': 'hourly', 
-                                     '15_min': '15 min'}, 
-                            value='1_day',
-                            id='data-agg-radio'),
-            ]),
+def call_layout():
 
-    html.Div(children=[
-    dcc.Graph(id='bar-graph',style={'margin-top': '20px', 'margin-bottom': '40px'})]),
+    # create a global variable to save the data at the site
+    global df
+    df = df_preprocess(data_file_name=site_config['data_file_name'],
+                       date_range=site_config['date_range'])
 
-    html.Div(children=[
-             html.H3(children='Traffic summary on the selected dates'), 
-             dash_table.DataTable(data = table.to_dict('records'), 
-                                  columns =[
-                                    dict(id='dir', name=''),
-                                    dict(id='total_vol', name='Total traffic', type='numeric', format=dash_table.Format.Format().group(True)),
-                                    dict(id='daily_avg', name='Ave. daily traffic', type='numeric', format=dash_table.Format.Format(precision=1, scheme=dash_table.Format.Scheme.fixed)),
-                                    dict(id='perc', name='Percent', type='numeric', format=dash_table.FormatTemplate.percentage(1))
-                                    ],
-                                    style_cell_conditional=[
-                                        {'if': {'column_id': 'dir'},
-                                        'width': '25%'},
-                                        {'if': {'column_id': 'total_vol'},
-                                        'width': '25%'},
-                                        {'if': {'column_id': 'daily_avg'},
-                                        'width': '25%'},
-                                        {'if': {'column_id': 'perc'},
-                                        'width': '20%'},
+    layout =  html.Div([
+        
+        html.Div(children=[
+                html.H3(children=dcc.Markdown(site_config['loc_msg_markdown'])),
+                html.H3(children=site_config['dates_msg']),
+                ]),
+        
+        html.Div(id='select-date-range',
+                children=[
+                html.H3(children='Select dates'), 
+                dcc.DatePickerRange(id='my-date-picker-range',
+                                    min_date_allowed = site_config['date_range'][0],
+                                    max_date_allowed = site_config['date_range'][1],
+                                    start_date = site_config['date_range'][0],
+                                    end_date = site_config['date_range'][1],
+                                    first_day_of_week=1,  # start on Mondays
+                                    minimum_nights=0,),
+                ]),
+        
+        html.Div(id='select-direction',
+                children=[
+                html.H3(children='Select traffic direction'), 
+                dcc.RadioItems(options={'bi_direction': 'Both directions', 
+                                        'in': site_config['config_direction']['in'], 
+                                        'out': site_config['config_direction']['out']},
+                                value='bi_direction',
+                                id='data-dir-radio'),
+                ]),
+        
+        html.Div(id='select-resolution',
+                children=[
+                html.H3(children='Select data resolution'), 
+                dcc.RadioItems(options={'1_week': 'weekly',
+                                        '1_day': 'daily',
+                                        '1_hour': 'hourly', 
+                                        '15_min': '15 min'}, 
+                                value='1_day',
+                                id='data-agg-radio'),
+                ]),
+
+        html.Div(children=[
+        dcc.Graph(id='bar-graph',style={'margin-top': '20px', 'margin-bottom': '40px'})]),
+
+        html.Div(children=[
+                html.H3(children='Traffic summary on the selected dates'), 
+                dash_table.DataTable(data = table.to_dict('records'), 
+                                    columns =[
+                                        dict(id='dir', name=''),
+                                        dict(id='total_vol', name='Total traffic', type='numeric', format=dash_table.Format.Format().group(True)),
+                                        dict(id='daily_avg', name='Ave. daily traffic', type='numeric', format=dash_table.Format.Format(precision=1, scheme=dash_table.Format.Scheme.fixed)),
+                                        dict(id='perc', name='Percent', type='numeric', format=dash_table.FormatTemplate.percentage(1))
                                         ],
-                                  style_table={'height': '250px', 'overflowY': 'auto'},
-                                  style_cell={'font-family':'Roboto', 'padding-right': '10px', 'padding-left': '10px'},
-                                  id='avg-table'),
-            ]), 
-    
-    html.Div(children=[dcc.Graph(id='avg-hour-traffic', style={'margin-top': '-80px', 'margin-bottom': '50px'})]),
-    html.Div(children=[dcc.Graph(id='time-of-day')]),
-    html.Div(children=[dcc.Graph(id='day-of-week')]),
+                                        style_cell_conditional=[
+                                            {'if': {'column_id': 'dir'},
+                                            'width': '25%'},
+                                            {'if': {'column_id': 'total_vol'},
+                                            'width': '25%'},
+                                            {'if': {'column_id': 'daily_avg'},
+                                            'width': '25%'},
+                                            {'if': {'column_id': 'perc'},
+                                            'width': '20%'},
+                                            ],
+                                    style_table={'height': '250px', 'overflowY': 'auto'},
+                                    style_cell={'font-family':'Roboto', 'padding-right': '10px', 'padding-left': '10px'},
+                                    id='avg-table'),
+                ]), 
+        
+        html.Div(children=[dcc.Graph(id='avg-hour-traffic', style={'margin-top': '-80px', 'margin-bottom': '50px'})]),
+        html.Div(children=[dcc.Graph(id='time-of-day')]),
+        html.Div(children=[dcc.Graph(id='day-of-week')]),
 
-    html.Div(children=[
-        html.H4(children=dcc.Markdown('Download the [data files](https://github.com/fenggroup/bike-traffic-plotly-dash/tree/main/data)')),
-        html.H4(children=dcc.Markdown('[Click here](https://fenggroup.org/bike-counter/) to learn more about our bike counting project.')), 
-        html.H4(children=dcc.Markdown('This dashboard is open source and hosted on [our GitHub repository](https://github.com/fenggroup/bike-traffic-plotly-dash).')), 
-        html.H4(children=dcc.Markdown('[Feng Group](https://fenggroup.org/) 2022'))
+        html.Div(children=[
+            html.H4(children=dcc.Markdown('Download the [data files](https://github.com/fenggroup/bike-traffic-plotly-dash/tree/main/data)')),
+            html.H4(children=dcc.Markdown('[Click here](https://fenggroup.org/bike-counter/) to learn more about our bike counting project.')), 
+            html.H4(children=dcc.Markdown('This dashboard is open source and hosted on [our GitHub repository](https://github.com/fenggroup/bike-traffic-plotly-dash).')), 
+            html.H4(children=dcc.Markdown('[Feng Group](https://fenggroup.org/) 2022'))
+        ])
+
+        
     ])
-    
-])
+
+    return layout
 
 @callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
+
+    global site_config
+
     if pathname == '/dearborn':
-        # # Dearborn data
-        data_file_name = "bike_data_dearborn.xlsx"
-        config_direction = {"in": "Eastbound", 
-                            "out": "Westbound"}
-        loc_msg_markdown = "Location: [Rouge Gateway Trail, Dearborn, MI](https://goo.gl/maps/WzSvLWxtkyoro9oK8)"
-        dates_msg = "Data collection: 5 weeks (2022-06-15 to 2022-07-19)"
-        # Set date range availability
-        min_date_allowed = "2022-06-15"   # the first full *day* of data collection in Dearborn
 
-        max_date_allowed = "2022-07-19"
+        # Config for Dearborn data
+        site_config = dict(data_file_name='bike_data_dearborn.xlsx', 
+                           config_direction={'in':'Eastbound', 
+                                             'out':'Westbound'}, 
+                           loc_msg_markdown='Location: [Rouge Gateway Trail, Dearborn, MI](https://goo.gl/maps/WzSvLWxtkyoro9oK8)',
+                           dates_msg='Data collection: 5 weeks (2022-06-15 to 2022-07-19)', 
+                           date_range=['2022-06-15',    # the first full *day* of data collection in Dearborn
+                                       '2022-07-19'],
+                           )
 
-        return layout
     elif pathname == '/annarbor':
+
         # Config for Ann Arbor data
-        data_file_name = "export_data_domain_7992.xlsx"
-        config_direction = {"in": "Northbound", 
-                            "out": "Southbound"}
-        loc_msg_markdown = "Location: N Division, Ann Arbor, MI ([Site photo](https://fenggroup.org/images/respic/bike-counter-a2division.png), [Google Maps](https://goo.gl/maps/1bcfHrqSYbqiRSXa8))"
-        dates_msg = 'Data collection: 2022-08-26 to 2022-09-25 (ongoing)'
-        # Set date range availability
-        min_date_allowed = '2022-08-26'   # the first full *day* of data collection in AA
-        # min_date_allowed = '2022-08-28'   # the first full *week* of data collection in AA
+        site_config = dict(data_file_name='export_data_domain_7992.xlsx', 
+                           config_direction={'in':'Northbound', 
+                                             'out':'Southbound'}, 
+                           loc_msg_markdown='Location: N Division, Ann Arbor, MI ([Site photo](https://fenggroup.org/images/respic/bike-counter-a2division.png), [Google Maps](https://goo.gl/maps/1bcfHrqSYbqiRSXa8))',
+                           dates_msg='Data collection: 2022-08-26 to 2022-10-17 (ongoing)', 
+                           date_range=['2022-08-26',   # the first full *day* of data collection in AA
+                                       '2022-10-17'],
+                           )
 
-        max_date_allowed = '2022-09-25'
+    return call_layout()
 
-        return layout
-    elif pathname == '/':
-        return home_layout
+    # elif pathname == '/':
+    #     return home_layout
 
 @callback(
     Output(component_id='bar-graph', component_property='figure'),
@@ -240,8 +247,8 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date):
     
     labels = {'time': 'Date', 
               'bi_direction': 'Total',
-              'in': config_direction['in'],
-              'out': config_direction['out'],
+              'in': site_config['config_direction']['in'],
+              'out': site_config['config_direction']['out'],
               'day_of_week': 'Day of week'}
 
     fig1 = px.bar(df_updated, 
@@ -297,8 +304,8 @@ def update_table(start_date, end_date):
                       'out': perc_out, 
                       'bi_direction': 1})
 
-    direction = pd.Series({'in': config_direction['in'], 
-                           'out': config_direction['out'], 
+    direction = pd.Series({'in': site_config['config_direction']['in'], 
+                           'out': site_config['config_direction']['out'], 
                            'bi_direction': 'Both directions'})
 
     table = pd.DataFrame((direction, total_vol, daily_avg, perc)).T
