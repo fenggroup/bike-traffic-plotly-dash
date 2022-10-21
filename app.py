@@ -50,6 +50,14 @@ def df_update(df, rule, start_date, end_date):
 
     return df_filtered
 
+# reads the temperature data into the dash
+df_temp=pd.read_csv("./data/weather-noaa-annarbor.csv")
+
+# Convert the time to a pandas datetime object
+df_temp["DATE"] = pd.to_datetime(df_temp["DATE"])
+
+df_temp = df_temp.set_index("DATE")
+
 # convert rgb to rgba with transparency (alpha) value
 def rgb2rgba(rgb, alpha):
     return 'rgba' + rgb[3:-1]  + ', ' + str(alpha) + ')'
@@ -167,6 +175,12 @@ def call_layout():
                                 config = {'toImageButtonOptions': {'format': 'png','filename': 'time_of_day_chart', 'height': 350,'width': 750,'scale': 10}})]),
         html.Div(children=[dcc.Graph(id='day-of-week',
                                 config = {'toImageButtonOptions': {'format': 'png','filename': 'day_of_week_chart', 'height': 350,'width': 750,'scale': 10}})]),
+        
+        html.Div(children=[dcc.Checklist(id='day-checklist',                      
+                                options=['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                                value=['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'])]),
+        html.Div(children=[dcc.Graph(id='weather-plot',
+                                config = {'toImageButtonOptions': {'format': 'png','filename': 'weather_chart', 'height': 350,'width': 750,'scale': 10}})]),
 
         html.Div(children=[
             html.H4(children=dcc.Markdown('Download the [data files](https://github.com/fenggroup/bike-traffic-plotly-dash/tree/main/data)')),
@@ -205,9 +219,9 @@ def display_page(pathname):
                            config_direction={'in':'Northbound', 
                                              'out':'Southbound'}, 
                            loc_msg_markdown='Location: N Division, Ann Arbor, MI ([Site photo](https://fenggroup.org/images/respic/bike-counter-a2division.png), [Google Maps](https://goo.gl/maps/1bcfHrqSYbqiRSXa8))',
-                           dates_msg='Data collection: 2022-08-26 to 2022-10-17 (ongoing)', 
+                           dates_msg='Data collection: 2022-08-26 to 2022-10-15 (ongoing)', 
                            date_range=['2022-08-26',   # the first full *day* of data collection in AA
-                                       '2022-10-17'],
+                                       '2022-10-15'],
                            )
 
     return call_layout()
@@ -457,11 +471,13 @@ def update_figure(dir_radio_val, start_date, end_date):
     
     df_updated = df_update(df=df, rule='H', start_date=start_date, end_date=end_date)
 
+    days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
     ctb_time = pd.crosstab(index = df_updated.day_of_week, 
                            columns = df_updated.index.hour,
                            rownames=['day of week'],
                            values = df_updated[dir_radio_val], 
-                           aggfunc = 'mean')
+                           aggfunc = 'mean').reindex(days)
 
     labels = {'col_0': 'Time of day', 
               'value': 'Count'}
@@ -490,6 +506,46 @@ def update_figure(dir_radio_val, start_date, end_date):
                        modebar_remove=['zoom', 'pan', 'select','lasso2d', 'zoomIn', 'zoomOut', 'autoScale'])
     
     return fig4
+
+@callback(
+    Output(component_id='weather-plot', component_property='figure'),
+    Input(component_id='day-checklist', component_property='value'),
+    Input(component_id='my-date-picker-range', component_property='start_date'),
+    Input(component_id='my-date-picker-range', component_property='end_date'))
+
+def update_figure(day_checklist_val, start_date, end_date):
+
+    df_updated = df_update(df=df, rule='D', start_date=start_date, end_date=end_date)
+
+    dff_temp = df_temp[start_date : end_date]
+
+    df_weather = df_updated.join(dff_temp)
+
+    df_weather = df_weather[df_weather['day_of_week'].isin(day_checklist_val)]
+
+    labels = {'bi_direction': 'Daily count', 
+              'value': 'Temperature'}
+
+    hover_data= ['day_of_week']
+
+    fig5 = px.scatter(df_weather, 
+                      x='TMAX', 
+                      y='bi_direction', 
+                      labels = labels,
+                      hover_data=hover_data)
+
+    fig5.update_layout(xaxis_title='Temperature (degrees F)', 
+                       yaxis_title='Daily count',
+                       title='<b>Daily traffic by maximum temperature</b>',
+                       title_x=0.5,  # center title
+                       transition_duration=500,
+                       font=figure_font, 
+                       height=500,
+                       template=template,
+                       modebar_remove=['zoom', 'pan', 'select','lasso2d', 'zoomIn', 'zoomOut', 'autoScale'])
+                       
+
+    return fig5
 
 
 if __name__ == '__main__':
