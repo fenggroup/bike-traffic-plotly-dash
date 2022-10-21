@@ -132,8 +132,10 @@ def call_layout():
                                 id='data-agg-radio'),
                 ]),
 
-        html.Div(children=[
-        dcc.Graph(id='bar-graph',style={'margin-top': '20px', 'margin-bottom': '40px'})]),
+    html.Div(children=[
+    dcc.Graph(id='bar-graph',style={'margin-top': '20px', 'margin-bottom': '40px'},
+    config = {'toImageButtonOptions': {'format': 'png','filename': 'bar_chart', 'height': 350,'width': 750,'scale': 10}}
+    )]),
 
         html.Div(children=[
                 html.H3(children='Traffic summary on the selected dates'), 
@@ -159,9 +161,12 @@ def call_layout():
                                     id='avg-table'),
                 ]), 
         
-        html.Div(children=[dcc.Graph(id='avg-hour-traffic', style={'margin-top': '-80px', 'margin-bottom': '50px'})]),
-        html.Div(children=[dcc.Graph(id='time-of-day')]),
-        html.Div(children=[dcc.Graph(id='day-of-week')]),
+        html.Div(children=[dcc.Graph(id='avg-hour-traffic', style={'margin-top': '-80px', 'margin-bottom': '50px'},
+                                config = {'toImageButtonOptions': {'format': 'png','filename': 'avg_hourly_traffic_chart', 'height': 350,'width': 750,'scale': 10}})]),
+        html.Div(children=[dcc.Graph(id='time-of-day',
+                                config = {'toImageButtonOptions': {'format': 'png','filename': 'time_of_day_chart', 'height': 350,'width': 750,'scale': 10}})]),
+        html.Div(children=[dcc.Graph(id='day-of-week',
+                                config = {'toImageButtonOptions': {'format': 'png','filename': 'day_of_week_chart', 'height': 350,'width': 750,'scale': 10}})]),
 
         html.Div(children=[
             html.H4(children=dcc.Markdown('Download the [data files](https://github.com/fenggroup/bike-traffic-plotly-dash/tree/main/data)')),
@@ -266,7 +271,8 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date):
                        title_x=0.5,  # center title
                        transition_duration=500, 
                        font=figure_font,
-                       hoverlabel=dict(font_color='white'))
+                       hoverlabel=dict(font_color='white'),
+                       modebar_remove=['zoom', 'pan', 'select','lasso2d', 'zoomIn', 'zoomOut', 'autoScale'])
        
     # number of days in the selected date range
     numdays = (df_updated.index.max() - df_updated.index.min()).days
@@ -376,7 +382,8 @@ def update_figure(dir_radio_val, start_date, end_date):
                        font=figure_font,
                        yaxis_range=[0, ctb_time.max().max()+5], 
                        height=500,
-                       template=template)
+                       template=template,
+                       modebar_remove=['zoom', 'pan', 'select','lasso2d', 'zoomIn', 'zoomOut', 'autoScale'])
     
     return fig2
 
@@ -433,7 +440,8 @@ def update_figure(dir_radio_val, start_date, end_date):
                        yaxis_range=[0, ctb_day.max().max()+20], 
                        transition_duration=500,
                        font=figure_font,
-                       height=500)
+                       height=500,
+                       modebar_remove=['zoom', 'pan', 'select','lasso2d', 'zoomIn', 'zoomOut', 'autoScale'])
 
     fig3.update_xaxes(categoryorder='array', categoryarray=category_orders)
     
@@ -478,7 +486,8 @@ def update_figure(dir_radio_val, start_date, end_date):
                        font=figure_font,
                        yaxis_range=[0, ctb_time.max().max()+5], 
                        height=500,
-                       template=template)
+                       template=template,
+                       modebar_remove=['zoom', 'pan', 'select','lasso2d', 'zoomIn', 'zoomOut', 'autoScale'])
     
     return fig4
 
