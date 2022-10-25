@@ -32,7 +32,7 @@ data_file_name = 'export_data_domain_7992.xlsx'
 config_direction = {'in': 'Northbound', 
                     'out': 'Southbound'}
 loc_msg_markdown = 'Location: N Division, Ann Arbor, MI ([Site photo](https://fenggroup.org/images/respic/bike-counter-a2division.png), [Google Maps](https://goo.gl/maps/1bcfHrqSYbqiRSXa8))'
-dates_msg = 'Data collection: 2022-08-26 to 2022-10-17 (ongoing)'
+dates_msg = 'Data collection: 2022-08-26 to 2022-10-24 (ongoing)'
 
 path = './data/' + data_file_name
 df = pd.read_excel(path, names=['time', 'in', 'out'], skiprows=3)
@@ -48,7 +48,7 @@ df = df.set_index('time')
 min_date_allowed = '2022-08-26'   # the first full *day* of data collection in AA
 # min_date_allowed = '2022-08-28'   # the first full *week* of data collection in AA
 
-max_date_allowed = '2022-10-17'
+max_date_allowed = '2022-10-24'
 
 df = df[min_date_allowed : max_date_allowed]
 
