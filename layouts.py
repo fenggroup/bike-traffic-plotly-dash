@@ -83,8 +83,12 @@ def call_layout(site_config):
                 id='avg-table'),
         ]),
 
+        html.Div(children=[dcc.Checklist(id='time-day-checklist',
+                                         options=config.weekday_list,
+                                         value=config.weekday_list)]),
+
         html.Div(children=[dcc.Graph(id='time-of-day', 
-                                     style={'margin-top': '-100px', 'margin-bottom': '20px'},
+                                     style={'margin-bottom': '20px'},
                                      config={'toImageButtonOptions': {'format': 'png', 'filename': 'time_of_day_chart', 'height': 350, 'width': 750, 'scale': 10}})]),
 
         html.Div(children=[dcc.Graph(id='avg-hour-traffic',

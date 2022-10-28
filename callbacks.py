@@ -148,27 +148,31 @@ def update_table(start_date, end_date, df, site_config):
 @callback(
     Output(component_id='time-of-day', component_property='figure'),
     Input(component_id='data-dir-radio', component_property='value'),
+    Input(component_id='time-day-checklist', component_property='value'),
     Input(component_id='my-date-picker-range', component_property='start_date'),
     Input(component_id='my-date-picker-range', component_property='end_date'),
     Input('intermediate-value', 'data'),
     )
 
-def update_figure(dir_radio_val, start_date, end_date, df):
+def update_figure(dir_radio_val, day_checklist_val, start_date, end_date, df):
 
     df = pd.read_json(df, orient='split')
    
-    df_time = utils.df_update(df=df, rule='15T', start_date=start_date, end_date=end_date)
-       
-    ctb_time = pd.crosstab(index = [df_time.index.isocalendar().week, df_time.index.day], 
-                           columns  =df_time.index.hour,
-                           rownames=['week', 'day'],
-                           values = df_time[dir_radio_val], 
-                           aggfunc = 'sum')
-    
-    labels = {'col_0': 'Time of day', 
-              'value': 'Count'}
+    df_time = utils.df_update(df=df, rule='1H', start_date=start_date, end_date=end_date)
 
-    fig2 = px.box(data_frame=ctb_time,
+    df_time = df_time[df_time['day_of_week'].isin(day_checklist_val)]
+       
+    
+    labels = {'x': 'Time of day', 
+              'bi_direction': 'Count',
+              'in': 'Count',
+              'out': 'Count',
+              'hover_data_0':'Date',
+              'day_of_week':'Day of Week'}
+
+    fig2 = px.box(data_frame=df_time,
+                  x=df_time.index.hour, 
+                  y=df_time[dir_radio_val],
                   labels=labels, 
                   points=False)
 
@@ -181,7 +185,13 @@ def update_figure(dir_radio_val, start_date, end_date, df):
                                }
                       }
 
-    fig2.add_trace(px.strip(data_frame=ctb_time, labels=labels).data[0])
+    hover_data= [df_time.index.date, 'day_of_week']
+
+    fig2.add_trace(px.strip(df_time, 
+                            x=df_time.index.hour, 
+                            y=df_time[dir_radio_val], 
+                            labels=labels,
+                            hover_data=hover_data).data[0])
 
     marker_color = utils.find_mark_color(dir_radio_val, alpha=0.4)
     
@@ -195,7 +205,7 @@ def update_figure(dir_radio_val, start_date, end_date, df):
                        title_x=0.5,  # center title
                        transition_duration=500,
                        font=config.figure_font,
-                       yaxis_range=[0, ctb_time.max().max()+5], 
+                       yaxis_range=[0, df_time[dir_radio_val].max()+5], 
                        height=500,
                        template=config.template,
                        modebar_remove=config.modebar_remove)
@@ -210,30 +220,40 @@ def update_figure(dir_radio_val, start_date, end_date, df):
     Input(component_id='my-date-picker-range', component_property='start_date'),
     Input(component_id='my-date-picker-range', component_property='end_date'),
     Input('intermediate-value', 'data'),
+    Input('weather-value', 'data'),
     )
 
-def update_figure(dir_radio_val, start_date, end_date, df):
+def update_figure(dir_radio_val, start_date, end_date, df, df_temp):
 
     df = pd.read_json(df, orient='split')
-    
-    df_day = utils.df_update(df=df, rule='15T', start_date=start_date, end_date=end_date)
 
-    ctb_day = pd.crosstab(index=df_day.index.isocalendar().week,
-                          columns=df_day.day_of_week,
-                          values = df_day[dir_radio_val],
-                          aggfunc='sum')
+    df_temp = pd.read_json(df_temp, orient='split')
+    
+    df_day = utils.df_update(df=df, rule='1D', start_date=start_date, end_date=end_date)
+
+    df_day = df_day.join(df_temp)
 
     category_orders = config.weekday_list
 
     labels = {'day_of_week': 'Day of week', 
-              'value': 'Count'}
+              'bi_direction': 'Count',
+              'in': 'Count',
+              'out': 'Count',
+              'hover_data_0':'Date',
+              'TMAX': 'Temperature high (F)',
+              'TMIN': 'Temperature low (F)',
+              'PRCP': 'Precipitation (inches)',}
 
-    fig3 = px.box(data_frame=ctb_day, 
-                    category_orders=category_orders,
-                    labels=labels,
-                    hover_data=['day_of_week'], 
-                    template=config.template, 
-                    points='all')
+    hover_data= [df_day.index.date,  'TMIN', 'TMAX','PRCP']
+
+    fig3 = px.box(data_frame=df_day,
+                  x=df_day.day_of_week,
+                  y=df_day[dir_radio_val], 
+                  category_orders=category_orders,
+                  labels=labels,
+                  hover_data=hover_data, 
+                  template=config.template, 
+                  points='all')
 
     marker_color = utils.find_mark_color(dir_radio_val, alpha=0.7)
 
@@ -245,7 +265,7 @@ def update_figure(dir_radio_val, start_date, end_date, df):
                        yaxis_title='Count',
                        title='<b>Daily traffic by day of week</b>',
                        title_x=0.5,  # center title
-                       yaxis_range=[0, ctb_day.max().max()+20], 
+                    #    yaxis_range=[0, df_day[dir_radio_val].max()+20], 
                        transition_duration=500,
                        font=config.figure_font,
                        height=500,
