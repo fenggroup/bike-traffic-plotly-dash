@@ -103,6 +103,10 @@ def call_layout(site_config):
                                          options=config.weekday_list,
                                          value=config.weekday_list)]),
 
+        html.Div(children=[dcc.RadioItems(id='rain-radio',
+                                         options=['All data', 'Days with no rain'],
+                                         value='All data')]),
+
         html.Div(children=[dcc.Graph(id='weather-plot',
                                      config={'toImageButtonOptions': {'format': 'png', 'filename': 'weather_chart', 'height': 350, 'width': 750, 'scale': 10}})]),
 

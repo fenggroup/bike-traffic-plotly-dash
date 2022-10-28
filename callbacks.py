@@ -347,13 +347,14 @@ def update_figure(dir_radio_val, start_date, end_date, df):
     Output(component_id='weather-plot', component_property='figure'),
     Input(component_id='data-dir-radio', component_property='value'),
     Input(component_id='day-checklist', component_property='value'),
+    Input(component_id='rain-radio', component_property='value'),
     Input(component_id='my-date-picker-range', component_property='start_date'),
     Input(component_id='my-date-picker-range', component_property='end_date'),
     Input('intermediate-value', 'data'),
     Input('weather-value', 'data'),
     )
 
-def update_figure(dir_radio_val, day_checklist_val, start_date, end_date, df, df_temp):
+def update_figure(dir_radio_val, day_checklist_val, rain_radio_val,start_date, end_date, df, df_temp):
 
     df = pd.read_json(df, orient='split')
 
@@ -366,6 +367,9 @@ def update_figure(dir_radio_val, day_checklist_val, start_date, end_date, df, df
     df_weather = df_updated.join(dff_temp)
 
     df_weather = df_weather[df_weather['day_of_week'].isin(day_checklist_val)]
+
+    if rain_radio_val == 'Days with no rain':
+        df_weather = df_weather.loc[df_weather['PRCP'] == 0]
 
     labels = {'bi_direction': 'Daily count', 
               'value': 'Temperature',
