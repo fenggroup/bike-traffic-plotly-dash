@@ -1,6 +1,12 @@
 from dash import dcc, html, dash_table
 import config
 
+import numpy as np
+import pandas as pd
+
+# Set up a preliminary dataframe for the data table
+table = pd.DataFrame(np.zeros((3, 4)))
+
 def call_layout(site_config):
 
     layout = html.Div([
@@ -55,7 +61,7 @@ def call_layout(site_config):
 
         html.Div(children=[
             html.H3(children='Traffic summary on the selected dates'),
-            dash_table.DataTable(data=config.table.to_dict('records'),
+            dash_table.DataTable(data=table.to_dict('records'),
                                  columns=[
                 dict(id='dir', name=''),
                 dict(id='total_vol', name='Total traffic', type='numeric',
@@ -120,8 +126,36 @@ def call_layout(site_config):
         # dcc.Store stores the values
         dcc.Store(id='intermediate-value'),
         dcc.Store(id='weather-value'),
+        dcc.Store(id='daily-notes'),
         dcc.Store(id='site-config'),
 
     ])
 
     return layout
+
+
+home_layout = html.Div(children=[
+    html.H1(children='Bike traffic dashboard'),
+
+    html.H3(children='Select a bike counter location below to see the dashboard.'),
+
+    html.Div([html.Br(),
+              dcc.Link('Ann Arbor N Division protected bike lane', href='/annarbor-1'),
+              html.Br(),
+              html.Br(),
+              dcc.Link('Dearborn Rouge Getaway Trail (2022-06-15 to 2022-07-19)', href='/dearborn-1'),
+              html.Br(),
+              html.Br(),
+              dcc.Link('Dearborn Rouge Getaway Trail (2022-10-08 to 2022-10-29)', href='/dearborn-2'),
+              html.Br(),
+              html.Br(),
+              html.Br(),
+    ]),
+
+    html.Div(children=[
+    html.H4(children=dcc.Markdown('The dashboards are open source and hosted on [our GitHub repository](https://github.com/fenggroup/bike-traffic-plotly-dash).')),
+    html.H4(children=dcc.Markdown('[Feng Group](https://fenggroup.org/) 2022'))
+    ]),
+
+    
+])

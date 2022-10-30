@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import dash
 
-from layouts import call_layout
+import layouts
 import callbacks
 import config
 import sites
@@ -24,22 +24,21 @@ app.layout = html.Div([
           [Input('url', 'pathname')])
 def display_page(pathname):
 
-    if pathname == '/dearborn-1':
+    if pathname == '/':
+        
+        return layouts.home_layout
 
-        site_config = sites.dearborn_1
+    else:
 
-    elif pathname == '/annarbor-1':
+        for site in sites.site_list:
 
-        site_config = sites.annarbor_1
+            if pathname == site['site_url']:
 
-    elif pathname == '/dearborn-2':
+                site_config = site
 
-        site_config = sites.dearborn_2
+                break
 
-    return call_layout(site_config)
-
-    # elif pathname == '/':
-    #     return home_layout
+        return layouts.call_layout(site_config)    
 
 
 @app.callback(Output('intermediate-value', 'data'), Input('site-config', 'data'))
@@ -54,7 +53,15 @@ def process_data(site_config):
 @app.callback(Output('weather-value', 'data'), Input('site-config', 'data'))
 def clean_data(site_config):
 
-    df_temp = utils.weather_data(weather_file_name=site_config['weather_file_name'])
+    df_temp = utils.weather_data(site_config['weather_file_name'])
+
+    return df_temp.to_json(date_format='iso', orient='split')
+
+
+@app.callback(Output('daily-notes', 'data'), Input('site-config', 'data'))
+def add_notes(site_config):
+
+    df_temp = utils.note_data(site_config['note_file_name'])
 
     return df_temp.to_json(date_format='iso', orient='split')
 
@@ -62,17 +69,15 @@ def clean_data(site_config):
 @app.callback(Output('site-config', 'data'), Input('url', 'pathname'))
 def clean_data(pathname):
 
-    if pathname == '/dearborn-1':
+    for site in sites.site_list:
 
-        site_config = sites.dearborn_1
+        site_config = 0
 
-    elif pathname == '/annarbor-1':
+        if pathname == site['site_url']:
 
-        site_config = sites.annarbor_1
+            site_config = site
 
-    elif pathname == '/dearborn-2':
-
-        site_config = sites.dearborn_2
+            break
 
     return site_config
 

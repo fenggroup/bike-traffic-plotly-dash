@@ -3,7 +3,6 @@
 import pandas as pd
 import config
 
-
 # A function to prossess the raw data from bike counter to a pandas dataframe
 def df_process(data_file_name, date_range):
 
@@ -22,16 +21,30 @@ def df_process(data_file_name, date_range):
     return df
 
 
+# A function to get the daily weather data
 def weather_data(weather_file_name):
 
-    pa = './data/' + weather_file_name
+    path = './data/' + weather_file_name
 
-    df_temp = pd.read_csv(pa, usecols=['DATE', 'PRCP', 'TMAX', 'TMIN'])
+    df_temp = pd.read_csv(path, usecols=['DATE', 'PRCP', 'TMAX', 'TMIN'])
 
     # Convert the time to a pandas datetime object
     df_temp['DATE'] = pd.to_datetime(df_temp['DATE'])
 
     df_temp = df_temp.set_index('DATE')
+
+    return df_temp
+
+def note_data(note_file_name):
+
+    path = './data/' + note_file_name
+
+    df_temp = pd.read_csv(path)
+
+    # Convert the time to a pandas datetime object
+    df_temp['date'] = pd.to_datetime(df_temp['date'])
+
+    df_temp = df_temp.set_index('date')
 
     return df_temp
 
