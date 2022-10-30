@@ -1,6 +1,5 @@
 from dash import Input, Output, callback
 import plotly.express as px
-import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
 
@@ -29,30 +28,27 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
 
     df_notes = pd.read_json(df_notes, orient='split')
 
+    bargap = 0.1
+
     if agg_radio_val == '15_min':
         rule = '15T'
+        bargap = 0
+    elif agg_radio_val == '30_min':
+        rule = '30T'
+        bargap = 0
     elif agg_radio_val == '1_hour':
         rule = 'H'
+        bargap = 0
     elif agg_radio_val == '1_day':
         rule = 'D'
     elif agg_radio_val == '1_week':
         rule = 'W'
+    elif agg_radio_val == '1_month':
+        rule = 'M'
 
     df_updated = utils.df_update(df=df, rule=rule, start_date=start_date, end_date=end_date)
 
-    hover_data= ['day_of_week']
-
-    if dir_radio_val == 'in':
-
-        marker_color = config.color_in
-    
-    elif dir_radio_val == 'out':
-
-        marker_color = config.color_out
-
-    elif dir_radio_val == 'bi_direction':
-
-        marker_color = config.color_both_direction
+    marker_color = config.color[dir_radio_val]
 
     # add additional hover data for *daily* chart
     if agg_radio_val == '1_day':
@@ -74,13 +70,14 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
 
         hover_data = ['day_of_week']
 
-        # To format date/time: https://github.com/d3/d3-time-format
         hovertemplate = 'Week that ends on %{x|%b %d, %Y}' + \
                         '<br>Count: %{y}'
 
     else:
 
-        hovertemplate = '%{x|%b %d, %Y} (%{customdata[2]})' + \
+        hover_data = ['day_of_week']
+
+        hovertemplate = '%{x|%b %d, %Y} (%{customdata[0]})' + \
                         '<br>%{x|%I:%M %p}' + \
                         '<br>Count: %{y}<extra></extra>' 
 
@@ -91,16 +88,20 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
                   template=config.template)
 
     fig1.update_traces(marker_color=marker_color, 
-                       hovertemplate=hovertemplate)
+                       hovertemplate=hovertemplate) 
 
-    fig1.update_layout(xaxis_title='Date & time', 
+    fig1.update_layout(xaxis_title='', 
                        yaxis_title='Count', 
                        title='<b>Bike traffic counts by date & time</b>',
                        title_x=0.5,  # center title
                        transition_duration=500, 
                        font=config.figure_font,
                        hoverlabel=dict(font_color='white'),
-                       modebar_remove=config.modebar_remove)
+                       modebar_remove=config.modebar_remove,
+                       bargap=bargap,
+                    #    paper_bgcolor="rgba(0,0,0,0)",    # transparent chart
+                    #    plot_bgcolor="rgba(0,0,0,0)",
+                       )
        
     # number of days in the selected date range
     numdays = (df_updated.index.max() - df_updated.index.min()).days
@@ -174,19 +175,10 @@ def update_figure(dir_radio_val, day_checklist_val, start_date, end_date, df):
     df_time = utils.df_update(df=df, rule='1H', start_date=start_date, end_date=end_date)
 
     df_time = df_time[df_time['day_of_week'].isin(day_checklist_val)]
-       
-    
-    # labels = {'x': 'Time of day', 
-    #           'bi_direction': 'Count',
-    #           'in': 'Count',
-    #           'out': 'Count',
-    #           'hover_data_0':'Date',
-    #           'day_of_week':'Day of Week'}
 
     fig2 = px.box(data_frame=df_time,
                   x=df_time.index.hour, 
                   y=df_time[dir_radio_val],
-                #   labels=labels, 
                   points=False)
 
     xticks=np.arange(-0.5, 24, 1) 
@@ -200,8 +192,6 @@ def update_figure(dir_radio_val, day_checklist_val, start_date, end_date, df):
 
     hover_data= [df_time.index.date, 'day_of_week']
 
-    # hover_data = ['day_of_week', 'TMIN', 'TMAX', 'PRCP', 'notes']
-
     # To format date/time: https://github.com/d3/d3-time-format
     hovertemplate = '%{customdata[0]|%b %d, %Y} (%{customdata[1]})' + \
                     '<br>Count: %{y}'
@@ -212,7 +202,7 @@ def update_figure(dir_radio_val, day_checklist_val, start_date, end_date, df):
                             # labels=labels,
                             hover_data=hover_data).data[0])
 
-    marker_color = utils.find_mark_color(dir_radio_val, alpha=0.4)
+    marker_color = utils.rgb2rgba(config.color[dir_radio_val], alpha=0.4)
     
     fig2.update_traces(marker_color=marker_color,
                        marker_size=10,
@@ -225,7 +215,7 @@ def update_figure(dir_radio_val, day_checklist_val, start_date, end_date, df):
                        title_x=0.5,  # center title
                        transition_duration=500,
                        font=config.figure_font,
-                       yaxis_range=[0, df_time[dir_radio_val].max()+5], 
+                    #    yaxis_range=[0, df_time[dir_radio_val].max()+5], 
                        height=500,
                        template=config.template,
                        modebar_remove=config.modebar_remove)
@@ -272,7 +262,7 @@ def update_figure(dir_radio_val, start_date, end_date, df, df_weather):
                   template=config.template, 
                   points='all')
 
-    marker_color = utils.find_mark_color(dir_radio_val, alpha=0.7)
+    marker_color = utils.rgb2rgba(config.color[dir_radio_val], alpha=0.7)
 
     fig3.update_traces(marker_color=marker_color,
                        marker_size=20,
@@ -408,14 +398,6 @@ def update_figure(dir_radio_val, day_checklist_val, rain_radio_val,start_date, e
     if rain_radio_val == 'Days with no rain':
         df_weather = df_weather.loc[df_weather['PRCP'] < 0.1]
 
-    # labels = {'bi_direction': 'Daily count', 
-    #           'value': 'Temperature',
-    #           'TMAX': 'Maximum temperature (F)',
-    #           'day_of_week': 'Day of week',
-    #           'PRCP': 'Precipitation (inches)'}
-
-    # hover_data= ['day_of_week', 'PRCP']
-
     hover_data = [df_weather.index.date, 'day_of_week', 'TMIN', 'TMAX', 'PRCP']
 
     # To format date/time: https://github.com/d3/d3-time-format
@@ -428,12 +410,11 @@ def update_figure(dir_radio_val, day_checklist_val, rain_radio_val,start_date, e
     fig5 = px.scatter(df_weather, 
                       x='TMAX', 
                       y=dir_radio_val,
-                    #   labels = labels,
                       hover_data=hover_data, 
                       trendline='ols')
 
-    marker_color = utils.find_mark_color(dir_radio_val, alpha=0.7)
-
+    marker_color = utils.rgb2rgba(config.color[dir_radio_val], alpha=0.7)
+    
     fig5.update_traces(marker_color=marker_color, 
                        marker_size=20, 
                        hovertemplate=hovertemplate)

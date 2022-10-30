@@ -4,64 +4,71 @@ import config
 import numpy as np
 import pandas as pd
 
-# Set up a preliminary dataframe for the data table
-table = pd.DataFrame(np.zeros((3, 4)))
-
 def call_layout(site_config):
 
     layout = html.Div([
 
-        html.Div(children=[
-            html.H1(children=config.title),
-            html.H3(children=dcc.Markdown(
-                    site_config['loc_msg_markdown'])),
-            html.H3(children=site_config['dates_msg']),
-        ]),
-
-        html.Div(id='select-date-range',
+        html.Div(id='dash-header',
                  children=[
-                     html.H3(children='Select dates'),
-                     dcc.DatePickerRange(id='my-date-picker-range',
-                                            min_date_allowed=site_config['date_range'][0],
-                                            max_date_allowed=site_config['date_range'][1],
-                                            start_date=site_config['date_range'][0],
-                                            end_date=site_config['date_range'][1],
-                                            first_day_of_week=1,  # start on Mondays
-                                            minimum_nights=0,),
+                    html.H1(children=config.title),
+                    html.H3(children=dcc.Markdown(
+                            site_config['loc_msg_markdown'])),
+                    html.H3(children=site_config['dates_msg']),
+                ]),
+
+        html.Div(id='dash-controls',
+                 children=[
+                    html.Div(id='select-date-range',
+                            children=[
+                                html.Span(children='Select dates', style={'font-weight': 'bold'}),
+                                dcc.DatePickerRange(id='my-date-picker-range',
+                                                        min_date_allowed=site_config['date_range'][0],
+                                                        max_date_allowed=site_config['date_range'][1],
+                                                        start_date=site_config['date_range'][0],
+                                                        end_date=site_config['date_range'][1],
+                                                        first_day_of_week=1,  # start on Mondays
+                                                        minimum_nights=0,
+                                                        updatemode='bothdates',
+                                                        ),
+                            ]),
+
+                    html.Div(id='select-direction',
+                            children=[
+                                html.Span(children='Traffic direction', style={'font-weight': 'bold'}),
+                                dcc.RadioItems(options={'bi_direction': 'Both',
+                                                        'in': site_config['config_direction']['in'] + ' only',
+                                                        'out': site_config['config_direction']['out'] + ' only'},
+                                                value='bi_direction',
+                                                inputStyle={"margin-left": "10px"},
+                                                id='data-dir-radio'),
+                            ]),
                  ]),
 
-        html.Div(id='select-direction',
+        html.Div(id='bar-graph-div',
                  children=[
-                     html.H3(children='Select traffic direction'),
-                     dcc.RadioItems(options={'bi_direction': 'Both directions',
-                                             'in': site_config['config_direction']['in'],
-                                             'out': site_config['config_direction']['out']},
-                                    value='bi_direction',
-                                    id='data-dir-radio'),
-                 ]),
+                 html.Div(id='select-resolution',
+                            children=[
+                                html.Span(children='Select data resolution', style={'font-weight': 'bold'}),
+                                dcc.RadioItems(options={'1_month': 'monthly',
+                                                        '1_week': 'weekly',
+                                                        '1_day': 'daily',
+                                                        '1_hour': 'hourly',
+                                                        '30_min': '30 min',
+                                                        '15_min': '15 min'},
+                                                value='1_day',
+                                                inputStyle={"margin-left": "10px"},
+                                                id='data-agg-radio'),
+                            ]),
 
-        html.Div(id='select-resolution',
-                 children=[
-                     html.H3(children='Select data resolution'),
-                     dcc.RadioItems(options={'1_week': 'weekly',
-                                             '1_day': 'daily',
-                                             '1_hour': 'hourly',
-                                             '15_min': '15 min'},
-                                    value='1_day',
-                                    id='data-agg-radio'),
-                 ]),
-
-        html.Div(children=[
             dcc.Graph(id='bar-graph', 
-                      style={'margin-top': '20px',
-                             'margin-bottom': '40px'},
                       config={'toImageButtonOptions': {
-                              'format': 'png', 'filename': 'bar_chart', 'height': 350, 'width': 750, 'scale': 10}}
+                              'format': 'png', 'filename': 'bar_chart', 'height': None, 'width': None, 'scale': 10}}
                       )]),
 
-        html.Div(children=[
+        html.Div(id='table-div',
+            children=[
             html.H3(children='Traffic summary on the selected dates'),
-            dash_table.DataTable(data=table.to_dict('records'),
+            dash_table.DataTable(data=pd.DataFrame(np.zeros((3, 4))).to_dict('records'),
                                  columns=[
                 dict(id='dir', name=''),
                 dict(id='total_vol', name='Total traffic', type='numeric',
@@ -81,37 +88,46 @@ def call_layout(site_config):
                 {'if': {'column_id': 'perc'},
                  'width': '20%'},
             ],
-                style_table={'height': '250px', 
-                             'overflowY': 'auto'},
                 style_cell={'font-family': 'Roboto',
                             'padding-right': '10px', 
                             'padding-left': '10px'},
                 id='avg-table'),
         ]),
 
-        html.Div(children=[dcc.Checklist(id='time-day-checklist',
-                                         options=config.weekday_list,
-                                         value=config.weekday_list)]),
-
-        html.Div(children=[dcc.Graph(id='time-of-day', 
-                                     style={'margin-bottom': '20px'},
-                                     config={'toImageButtonOptions': {'format': 'png', 'filename': 'time_of_day_chart', 'height': 350, 'width': 750, 'scale': 10}})]),
+        html.Div(id='time-of-day-div',
+            children=[
+            html.Div(id='select-dayofweek-1',
+                children=[
+                # html.Span(children='Select day of week', style={'font-weight': 'bold'}),
+                dcc.Checklist(id='time-day-checklist',
+                            options=config.weekday_list,
+                            value=config.weekday_list,
+                            inputStyle={"margin-left": "10px"},
+                            )]),
+            
+            dcc.Graph(id='time-of-day', 
+                    config={'toImageButtonOptions': {'format': 'png', 'filename': 'time_of_day_chart', 'height': None, 'width': None, 'scale': 10}}
+            )]),
 
         html.Div(children=[dcc.Graph(id='avg-hour-traffic',
-                                     style={'margin-bottom': '20px'},
                                      config={'toImageButtonOptions': {'format': 'png', 'filename': 'avg_hourly_traffic_chart', 'height': 350, 'width': 750, 'scale': 10}})]),
 
         html.Div(children=[dcc.Graph(id='day-of-week',
-                                     style={'margin-bottom': '20px'},
                                      config={'toImageButtonOptions': {'format': 'png', 'filename': 'day_of_week_chart', 'height': 350, 'width': 750, 'scale': 10}})]),
 
         html.Div(children=[dcc.Checklist(id='day-checklist',
                                          options=config.weekday_list,
-                                         value=config.weekday_list)]),
+                                         value=config.weekday_list,
+                                         inputStyle={"margin-left": "10px"},
+                                         )]),
 
         html.Div(children=[dcc.RadioItems(id='rain-radio',
                                          options=['All data', 'Days with no rain'],
-                                         value='All data')]),
+                                         value='All data',
+                                         inputStyle={"margin-left": "10px"},
+                                         style={"margin-top": "15px",
+                                             "margin-bottom": "5px",},
+                                         )]),
 
         html.Div(children=[dcc.Graph(id='weather-plot',
                                      config={'toImageButtonOptions': {'format': 'png', 'filename': 'weather_chart', 'height': 350, 'width': 750, 'scale': 10}})]),
@@ -149,7 +165,6 @@ home_layout = html.Div(children=[
               dcc.Link('Dearborn Rouge Getaway Trail (2022-10-08 to 2022-10-29)', href='/dearborn-2'),
               html.Br(),
               html.Br(),
-              html.Br(),
     ]),
 
     html.Div(children=[
@@ -157,5 +172,4 @@ home_layout = html.Div(children=[
     html.H4(children=dcc.Markdown('[Feng Group](https://fenggroup.org/) 2022'))
     ]),
 
-    
 ])

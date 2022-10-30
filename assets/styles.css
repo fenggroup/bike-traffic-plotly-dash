@@ -2,27 +2,30 @@
 
 body {
     font-family: 'Roboto', serif;
-    margin: 30px 100px;
+    margin: 40px 60px;
     text-align: center;
+    font-size: 13pt;
 }
 
 #select-date-range {
     text-align: center;
-    width: 30%;
+    width: 45%;
     display: inline-block;
-    vertical-align: top;
 }
 
 #select-direction {
     text-align: center;
-    width: 40%;
+    width: 55%;
     display: inline-block;
-    vertical-align: top;
+}
+
+#my-date-picker-range {
+    margin-top: 0px;
+    margin-left: 10px;
 }
 
 #select-resolution {
     text-align: center;
-    width: 30%;
     display: inline-block;
     vertical-align: top;
 }
@@ -34,7 +37,64 @@ body {
     border-radius: 50px;
 }
 
-#avg-table{
+#avg-table {
     width: 60%;
     margin: auto;
+    height: 180px;
+}
+
+#bar-graph {
+    margin-top: 10px;
+    margin-bottom: 0px;
+}
+
+#time-of-day, #avg-hour-traffic, #day-of-week {
+    margin-top: 0px;
+    margin-bottom: 20px;
+}
+
+#time-day-checklist {
+    margin-top: -40px;
+    margin-bottom: 0px;
+}
+
+#dash-controls {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+    background-color: #F5F5F5;
+    margin-bottom: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 10px;
+}
+
+#bar-graph-div {
+    border-radius: 10px;
+    margin-top: 40px;
+}
+
+#data-dir-radio {
+    display: inline-block;
+}
+
+#data-agg-radio {
+    display: inline-block;
+}
+
+#table-div {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 10px;
+    border-radius: 10px;
+    margin-top: 0px;
+    width: 80%;
+}
+
+#time-of-day-div {
+    padding-bottom: 10px;
+    border-radius: 10px;
+    margin-top: 30px;
 }

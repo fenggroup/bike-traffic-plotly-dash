@@ -66,20 +66,3 @@ def df_update(df, rule, start_date, end_date):
 def rgb2rgba(rgb, alpha):
     return 'rgba' + rgb[3:-1]  + ', ' + str(alpha) + ')'
 
-
-# A function to set mark color based on travel direction
-def find_mark_color(dir_radio_val, alpha):
-
-    if dir_radio_val == 'in':
-
-        mark_color = rgb2rgba(config.color_in, alpha)
-    
-    elif dir_radio_val == 'out':
-
-        mark_color = rgb2rgba(config.color_out, alpha)
-
-    elif dir_radio_val == 'bi_direction':
-
-        mark_color = rgb2rgba(config.color_both_direction, alpha)
-    
-    return mark_color

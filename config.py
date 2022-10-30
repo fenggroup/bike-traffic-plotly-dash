@@ -7,6 +7,11 @@ color_both_direction = 'rgb(80, 123, 0)' # "#507B00"  # green
 color_in = 'rgb(99, 110, 250)'   # blue
 color_out = 'rgb(230, 180, 0)'   # yellow
 
+color = {'bi_direction': 'rgb(80, 123, 0)',   # "#507B00"  # green
+         'in': 'rgb(99, 110, 250)',   # blue
+         'out': 'rgb(230, 180, 0)'   # yellow
+}
+
 # Set plotly template
 template = 'plotly_white'
 
