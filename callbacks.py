@@ -57,11 +57,13 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
 
         df_updated = df_updated.join(df_notes)
 
-        hover_data = ['day_of_week', 'TMIN', 'TMAX', 'PRCP', 'notes']
+        hover_data = ['day_of_week', 'TMIN', 'TMAX', 'PRCP', 'notes', 'in', 'out']
 
         # To format date/time: https://github.com/d3/d3-time-format
-        hovertemplate = '%{x|%b %d, %Y} (%{customdata[0]})' + \
+        hovertemplate = 'Date: %{x|%b %d, %Y} (%{customdata[0]})' + \
                         '<br>Count: %{y}' + \
+                        '<br>' + site_config['config_direction']['in'] + ': %{customdata[5]}' + \
+                        '<br>' + site_config['config_direction']['out'] + ': %{customdata[6]}' + \
                         '<br>Temperature (F): %{customdata[1]}\u00B0 - %{customdata[2]}\u00B0' + \
                         '<br>Precipitation: %{customdata[3]} inches' + \
                         '<br>Notes: %{customdata[4]}<extra></extra>' 
@@ -92,7 +94,7 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
 
     fig1.update_layout(xaxis_title='', 
                        yaxis_title='Count', 
-                       title='<b>Bike traffic counts by date & time</b>',
+                       title='<b>Bike traffic by date & time</b>',
                        title_x=0.5,  # center title
                        transition_duration=500, 
                        font=config.figure_font,
@@ -193,7 +195,7 @@ def update_figure(dir_radio_val, day_checklist_val, start_date, end_date, df):
     hover_data= [df_time.index.date, 'day_of_week']
 
     # To format date/time: https://github.com/d3/d3-time-format
-    hovertemplate = '%{customdata[0]|%b %d, %Y} (%{customdata[1]})' + \
+    hovertemplate = 'Date: %{customdata[0]|%b %d, %Y} (%{customdata[1]})' + \
                     '<br>Count: %{y}'
 
     fig2.add_trace(px.strip(df_time, 
@@ -248,7 +250,7 @@ def update_figure(dir_radio_val, start_date, end_date, df, df_weather):
     hover_data = [df_day.index.date, 'TMIN', 'TMAX', 'PRCP']
 
     # To format date/time: https://github.com/d3/d3-time-format
-    hovertemplate = '%{customdata[0]|%b %d, %Y} (%{x})' + \
+    hovertemplate = 'Date: %{customdata[0]|%b %d, %Y} (%{x})' + \
                     '<br>Count: %{y}' + \
                     '<br>Temperature (F): %{customdata[1]}\u00B0 - %{customdata[2]}\u00B0' + \
                     '<br>Precipitation: %{customdata[3]} inches'
@@ -337,8 +339,8 @@ def update_figure(dir_radio_val, start_date, end_date, df):
                             }
                       }
 
-    fig4.update_traces(line=dict(width=4), 
-                       marker=dict(size=10),
+    fig4.update_traces(line=dict(width=3), 
+                       marker=dict(size=8),
                     #    hovertemplate=hovertemlate,
                        )
 
@@ -401,7 +403,7 @@ def update_figure(dir_radio_val, day_checklist_val, rain_radio_val,start_date, e
     hover_data = [df_weather.index.date, 'day_of_week', 'TMIN', 'TMAX', 'PRCP']
 
     # To format date/time: https://github.com/d3/d3-time-format
-    hovertemplate = '%{customdata[0]|%b %d, %Y} (%{customdata[1]})' + \
+    hovertemplate = 'Date: %{customdata[0]|%b %d, %Y} (%{customdata[1]})' + \
                     '<br>Count: %{y}' + \
                     '<br>Temperature (F): %{customdata[2]}\u00B0 - %{x}\u00B0' + \
                     '<br>Precipitation: %{customdata[3]} inches'

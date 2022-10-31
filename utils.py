@@ -6,7 +6,7 @@ import config
 # A function to prossess the raw data from bike counter to a pandas dataframe
 def df_process(data_file_name, date_range):
 
-    path = './data/' + data_file_name
+    path = './data/counter/' + data_file_name
 
     df = pd.read_excel(path, names=['time', 'in', 'out'], skiprows=3)
 
@@ -24,7 +24,7 @@ def df_process(data_file_name, date_range):
 # A function to get the daily weather data
 def weather_data(weather_file_name):
 
-    path = './data/' + weather_file_name
+    path = './data/weather/' + weather_file_name
 
     df_temp = pd.read_csv(path, usecols=['DATE', 'PRCP', 'TMAX', 'TMIN'])
 
@@ -37,7 +37,7 @@ def weather_data(weather_file_name):
 
 def note_data(note_file_name):
 
-    path = './data/' + note_file_name
+    path = './data/notes/' + note_file_name
 
     df_temp = pd.read_csv(path)
 

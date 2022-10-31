@@ -122,7 +122,7 @@ def call_layout(site_config):
                                          )]),
 
         html.Div(children=[dcc.RadioItems(id='rain-radio',
-                                         options=['All data', 'Days with no rain'],
+                                         options=['All days', 'Only days without rain'],
                                          value='All data',
                                          inputStyle={"margin-left": "10px"},
                                          style={"margin-top": "15px",
