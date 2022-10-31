@@ -1,5 +1,6 @@
 from dash import dcc, html, dash_table
 import config
+import sites
 
 import numpy as np
 import pandas as pd
@@ -123,7 +124,7 @@ def call_layout(site_config):
 
         html.Div(children=[dcc.RadioItems(id='rain-radio',
                                          options=['All days', 'Only days without rain'],
-                                         value='All data',
+                                         value='All days',
                                          inputStyle={"margin-left": "10px"},
                                          style={"margin-top": "15px",
                                              "margin-bottom": "5px",},
@@ -156,13 +157,13 @@ home_layout = html.Div(children=[
     html.H3(children='Select a bike counter location below to see the dashboard.'),
 
     html.Div([html.Br(),
-              dcc.Link('Ann Arbor N Division protected bike lane', href='/annarbor-1'),
+              dcc.Link(sites.site_01['site_title'], href=sites.site_01['site_url']),
               html.Br(),
               html.Br(),
-              dcc.Link('Dearborn Rouge Getaway Trail (2022-06-15 to 2022-07-19)', href='/dearborn-1'),
+              dcc.Link(sites.site_02['site_title'], href=sites.site_02['site_url']),
               html.Br(),
               html.Br(),
-              dcc.Link('Dearborn Rouge Getaway Trail (2022-10-08 to 2022-10-29)', href='/dearborn-2'),
+              dcc.Link(sites.site_03['site_title'], href=sites.site_03['site_url']),
               html.Br(),
               html.Br(),
     ]),

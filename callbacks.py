@@ -383,7 +383,7 @@ def update_figure(dir_radio_val, start_date, end_date, df):
     Input('weather-value', 'data'),
     )
 
-def update_figure(dir_radio_val, day_checklist_val, rain_radio_val,start_date, end_date, df, df_temp):
+def update_figure(dir_radio_val, day_checklist_val, rain_radio_val, start_date, end_date, df, df_temp):
 
     df = pd.read_json(df, orient='split')
 
@@ -397,8 +397,8 @@ def update_figure(dir_radio_val, day_checklist_val, rain_radio_val,start_date, e
 
     df_weather = df_weather[df_weather['day_of_week'].isin(day_checklist_val)]
 
-    if rain_radio_val == 'Days with no rain':
-        df_weather = df_weather.loc[df_weather['PRCP'] < 0.1]
+    if rain_radio_val == 'Only days without rain':
+        df_weather = df_weather.loc[df_weather['PRCP'] == 0]
 
     hover_data = [df_weather.index.date, 'day_of_week', 'TMIN', 'TMAX', 'PRCP']
 

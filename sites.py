@@ -1,6 +1,7 @@
 # Bike counter site information
 
-site_01 = dict(site_url='/annarbor-1',
+site_01 = dict(site_url='/annarbor',
+                site_title='Ann Arbor N Division protected bike lane',
                   data_file_name='export_data_domain_7992.xlsx',
                   weather_file_name='weather-noaa-annarbor.csv',
                   note_file_name='notes-annarbor.csv',
@@ -13,6 +14,7 @@ site_01 = dict(site_url='/annarbor-1',
                   )
 
 site_02 = dict(site_url='/dearborn-1',
+                site_title='Dearborn Rouge Getaway Trail (2022-06-15 to 2022-07-19)',
                   data_file_name='bike_data_dearborn.xlsx',
                   weather_file_name='weather-noaa-dearborn.csv',
                   note_file_name='notes-dearborn.csv',
@@ -25,6 +27,7 @@ site_02 = dict(site_url='/dearborn-1',
                   )
 
 site_03 = dict(site_url='/dearborn-2',
+                site_title='Dearborn Rouge Getaway Trail (2022-10-08 to 2022-10-29)',
                   data_file_name='bike_dearborn_counter.xlsx',
                   weather_file_name='weather-noaa-dearborn.csv',
                   note_file_name='notes-dearborn.csv',
