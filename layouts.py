@@ -56,7 +56,7 @@ def call_layout(site_config):
                                                         '1_hour': 'hourly',
                                                         '30_min': '30 min',
                                                         '15_min': '15 min'},
-                                                value='1_day',
+                                                value=site_config['default_res'],
                                                 inputStyle={"margin-left": "10px"},
                                                 id='data-agg-radio'),
                             ]),

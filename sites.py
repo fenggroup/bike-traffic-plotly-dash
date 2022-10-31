@@ -11,6 +11,7 @@ site_01 = dict(site_url='/annarbor',
                   dates_msg='Data collection: 2022-08-26 to 2022-10-28 (ongoing)',
                   date_range=['2022-08-26',   # the first full *day* of data collection
                               '2022-10-28'],
+                  default_res='1_day',
                   )
 
 site_02 = dict(site_url='/dearborn-1',
@@ -24,6 +25,7 @@ site_02 = dict(site_url='/dearborn-1',
                   dates_msg='Data collection: 5 weeks (2022-06-15 to 2022-07-19)',
                   date_range=['2022-06-15',    # the first full *day* of data collection
                               '2022-07-19'],
+                  default_res='1_day',
                   )
 
 site_03 = dict(site_url='/dearborn-2',
@@ -37,6 +39,7 @@ site_03 = dict(site_url='/dearborn-2',
                   dates_msg='Data collection: 2022-10-08 to 2022-10-27 (ongoing)',
                   date_range=['2022-10-08',    # the first full *day* of data collection
                               '2022-10-11'],
+                  default_res='1_hour',
                   )
 
 site_list = [site_01, site_02, site_03]
