@@ -44,13 +44,18 @@ body {
 }
 
 #bar-graph {
-    margin-top: 10px;
+    margin-top: 20px;
     margin-bottom: 0px;
 }
 
-#time-of-day, #avg-hour-traffic, #day-of-week {
-    margin-top: 0px;
-    margin-bottom: 20px;
+#time-of-day, #avg-hour-traffic, #weather-plot {
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+#day-of-week {
+    margin-top: 80px;
+    margin-bottom: 80px;
 }
 
 #time-day-checklist {
@@ -97,4 +102,9 @@ body {
     padding-bottom: 10px;
     border-radius: 10px;
     margin-top: 30px;
+}
+
+#footer {
+    margin-top: 100px;
+    margin-bottom: 0px;
 }

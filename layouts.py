@@ -63,7 +63,7 @@ def call_layout(site_config):
 
             dcc.Graph(id='bar-graph', 
                       config={'toImageButtonOptions': {
-                              'format': 'png', 'filename': 'bar_chart', 'height': None, 'width': None, 'scale': 10}}
+                              'format': 'png', 'filename': 'bar_chart', 'height': None, 'width': None, 'scale': 10}, 'displaylogo': False}
                       )]),
 
         html.Div(id='table-div',
@@ -107,14 +107,14 @@ def call_layout(site_config):
                             )]),
             
             dcc.Graph(id='time-of-day', 
-                    config={'toImageButtonOptions': {'format': 'png', 'filename': 'time_of_day_chart', 'height': None, 'width': None, 'scale': 10}}
+                    config={'toImageButtonOptions': {'format': 'png', 'filename': 'time_of_day_chart', 'height': None, 'width': None, 'scale': 10}, 'displaylogo': False}
             )]),
 
         html.Div(children=[dcc.Graph(id='avg-hour-traffic',
-                                     config={'toImageButtonOptions': {'format': 'png', 'filename': 'avg_hourly_traffic_chart', 'height': 350, 'width': 750, 'scale': 10}})]),
+                                     config={'toImageButtonOptions': {'format': 'png', 'filename': 'avg_hourly_traffic_chart', 'height': 350, 'width': 750, 'scale': 10}, 'displaylogo': False})]),
 
         html.Div(children=[dcc.Graph(id='day-of-week',
-                                     config={'toImageButtonOptions': {'format': 'png', 'filename': 'day_of_week_chart', 'height': 350, 'width': 750, 'scale': 10}})]),
+                                     config={'toImageButtonOptions': {'format': 'png', 'filename': 'day_of_week_chart', 'height': 350, 'width': 750, 'scale': 10}, 'displaylogo': False})]),
 
         html.Div(children=[dcc.Checklist(id='day-checklist',
                                          options=config.weekday_list,
@@ -131,9 +131,10 @@ def call_layout(site_config):
                                          )]),
 
         html.Div(children=[dcc.Graph(id='weather-plot',
-                                     config={'toImageButtonOptions': {'format': 'png', 'filename': 'weather_chart', 'height': 350, 'width': 750, 'scale': 10}})]),
+                                     config={'toImageButtonOptions': {'format': 'png', 'filename': 'weather_chart', 'height': 350, 'width': 750, 'scale': 10}, 'displaylogo': False})]),
 
-        html.Div(children=[
+        html.Div(id='footer',
+        children=[
             html.H4(children=dcc.Markdown('Download the [data files](https://github.com/fenggroup/bike-traffic-plotly-dash/tree/main/data)')),
             html.H4(children=dcc.Markdown('[Click here](https://fenggroup.org/bike-counter/) to learn more about our bike counting project.')),
             html.H4(children=dcc.Markdown('This dashboard is open source and hosted on [our GitHub repository](https://github.com/fenggroup/bike-traffic-plotly-dash).')),

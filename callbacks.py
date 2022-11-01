@@ -79,7 +79,7 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
 
         hover_data = ['day_of_week']
 
-        hovertemplate = '%{x|%b %d, %Y} (%{customdata[0]})' + \
+        hovertemplate = '%{x|%ßb %d, %Y} (%{customdata[0]})' + \
                         '<br>%{x|%I:%M %p}' + \
                         '<br>Count: %{y}<extra></extra>' 
 
@@ -101,12 +101,15 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
                        hoverlabel=dict(font_color='white'),
                        modebar_remove=config.modebar_remove,
                        bargap=bargap,
+                       margin=dict(l=0, r=0, t=40, b=0),
                     #    paper_bgcolor="rgba(0,0,0,0)",    # transparent chart
                     #    plot_bgcolor="rgba(0,0,0,0)",
                        )
        
     # number of days in the selected date range
     numdays = (df_updated.index.max() - df_updated.index.min()).days
+
+    # fig1.write_html("bike-counter-annarbor.html", full_html=False)
     
     # Disable showing time of day on x-axis in the daily bar chat.
     # instead, show everyday once (delta tick of 1 day)
@@ -183,11 +186,11 @@ def update_figure(dir_radio_val, day_checklist_val, start_date, end_date, df):
                   y=df_time[dir_radio_val],
                   points=False)
 
-    xticks=np.arange(-0.5, 24, 1) 
-    xlabels=np.arange(0, 25, 1)
+    xticks=np.arange(-0.5, 25, 1) 
+    # xlabels=np.arange(0, 25, 1)
 
     fig2['layout'] = {'xaxis':{'tickvals':xticks, 
-                               'ticktext':xlabels,
+                               'ticktext':config.time_of_day_labels,
                                'showline':True
                                }
                       }
@@ -211,16 +214,19 @@ def update_figure(dir_radio_val, day_checklist_val, start_date, end_date, df):
                        jitter=0.7, 
                        hovertemplate=hovertemplate)
 
-    fig2.update_layout(xaxis_title='Time of day', 
+    fig2.update_layout(xaxis_title='', 
                        yaxis_title='Count',
                        title='<b>Hourly traffic by time of day</b>',
                        title_x=0.5,  # center title
                        transition_duration=500,
                        font=config.figure_font,
-                    #    yaxis_range=[0, df_time[dir_radio_val].max()+5], 
+                       yaxis_range=[0, df_time[dir_radio_val].max()+5], 
                        height=500,
                        template=config.template,
-                       modebar_remove=config.modebar_remove)
+                       modebar_remove=config.modebar_remove,
+                       margin=dict(l=0, r=0, t=40, b=0),
+                       xaxis_range=[-0.5, 24],
+                       )
     
     return fig2
 
@@ -279,7 +285,9 @@ def update_figure(dir_radio_val, start_date, end_date, df, df_weather):
                        transition_duration=500,
                        font=config.figure_font,
                        height=500,
-                       modebar_remove=config.modebar_remove)
+                       modebar_remove=config.modebar_remove,
+                       margin=dict(l=0, r=0, t=40, b=0),
+                       )
 
     fig3.update_xaxes(categoryorder='array', categoryarray=category_orders)
     
@@ -331,20 +339,20 @@ def update_figure(dir_radio_val, start_date, end_date, df):
                   )
 
     xticks = np.arange(-0.5, 24, 1) 
-    xlabels = np.arange(0, 25, 1)
+    # xlabels = np.arange(0, 25, 1)
 
-    fig4['layout'] = {'xaxis':{'tickvals':xticks, 
-                      'ticktext':xlabels,
-                      'showline':True
-                            }
-                      }
+    # fig4['layout'] = {'xaxis':{'tickvals':xticks, 
+    #                   'ticktext':xlabels,
+    #                   'showline':True
+    #                         }
+    #                   }
 
     fig4.update_traces(line=dict(width=3), 
                        marker=dict(size=8),
                     #    hovertemplate=hovertemlate,
                        )
 
-    fig4.update_layout(xaxis_title='Time of day', 
+    fig4.update_layout(xaxis_title='', 
                        yaxis_title='Count',
                        title='<b>Average hourly traffic by time of day</b>',
                        title_x=0.5,  # center title
@@ -353,20 +361,35 @@ def update_figure(dir_radio_val, start_date, end_date, df):
                        yaxis_range=[0, ctb_time.max().max()+5], 
                        height=500,
                        template=config.template,
-                       modebar_remove=config.modebar_remove)
+                       modebar_remove=config.modebar_remove,
+                       margin=dict(l=0, r=0, t=60, b=0),
+                       legend=dict(yanchor="top",
+                                   y=1.04,
+                                   xanchor="center",
+                                   x=0.5,
+                                   orientation='h',
+                                   entrywidth=170,
+                                   ),
+                      legend_title='Click on a day-of-week label to hide data → ',
+                       xaxis={'tickvals':xticks, 
+                      'ticktext':config.time_of_day_labels,
+                      'showgrid':False,
+                            },
+                        xaxis_range=[-0.5, 24],     
+                       )
 
     # print("plotly express hovertemplate:", fig4.data[0].hovertemplate)
     
-    # add annotation
-    fig4.add_annotation(dict(font=dict(color='gray',size=18),
-                                            x=1.08,
-                                            y=1.1,
-                                            showarrow=False,
-                                            text="Click on a day-of-the-week label to show/hide the data ↓",
-                                            textangle=0,
-                                            xanchor='right',
-                                            xref="paper",
-                                            yref="paper"))
+    # # add annotation
+    # fig4.add_annotation(dict(font=dict(color='gray',size=18),
+    #                                         x=0.06,
+    #                                         y=0.97,
+    #                                         showarrow=False,
+    #                                         text="↓ Click on a label to show/hide its data",
+    #                                         textangle=0,
+    #                                         xanchor='left',
+    #                                         xref="paper",
+    #                                         yref="paper"))
 
     return fig4
 
@@ -430,6 +453,8 @@ def update_figure(dir_radio_val, day_checklist_val, rain_radio_val, start_date, 
                        height=500,
                        template=config.template,
                        modebar_remove=config.modebar_remove, 
-                       yaxis_range=[0, df_weather[dir_radio_val].max()+20])
+                       yaxis_range=[0, df_weather[dir_radio_val].max()+20],
+                       margin=dict(l=0, r=0, t=40, b=0),
+                       )
                        
     return fig5
