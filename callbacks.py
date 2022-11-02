@@ -79,8 +79,8 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
 
         hover_data = ['day_of_week']
 
-        hovertemplate = '%{x|%ßb %d, %Y} (%{customdata[0]})' + \
-                        '<br>%{x|%I:%M %p}' + \
+        hovertemplate = 'Date: %{x|%b %d, %Y} (%{customdata[0]})' + \
+                        '<br>Time: %{x|%I:%M %p}' + \
                         '<br>Count: %{y}<extra></extra>' 
 
     fig1 = px.bar(df_updated, 
@@ -370,7 +370,7 @@ def update_figure(dir_radio_val, start_date, end_date, df):
                                    orientation='h',
                                    entrywidth=170,
                                    ),
-                      legend_title='Click on a day-of-week label to hide data → ',
+                      legend_title='Click on a label to hide the day of week → ',
                        xaxis={'tickvals':xticks, 
                       'ticktext':config.time_of_day_labels,
                       'showgrid':False,

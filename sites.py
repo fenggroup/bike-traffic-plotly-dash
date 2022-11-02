@@ -7,10 +7,10 @@ site_01 = dict(site_url='/annarbor',
                   note_file_name='notes-annarbor.csv',
                   config_direction={'in': 'Northbound',
                                     'out': 'Southbound'},
-                  loc_msg_markdown='Location: N Division, Ann Arbor, MI ([Site photo](https://fenggroup.org/images/respic/bike-counter-a2division.png), [Google Maps](https://goo.gl/maps/1bcfHrqSYbqiRSXa8))',
-                  dates_msg='Data collection: 2022-08-26 to 2022-10-28 (ongoing)',
+                  loc_msg_markdown='[Ann Arbor Division Street Bikeway](https://www.a2dda.org/people-friendly-streets/projects/division-street-bikeway-project/) | [Site photo](https://fenggroup.org/images/respic/bike-counter-a2division.png) | [Site location](https://goo.gl/maps/1bcfHrqSYbqiRSXa8)',
+                  dates_msg='Data collection: 2022-08-26 to 2022-11-01 (ongoing)',
                   date_range=['2022-08-26',   # the first full *day* of data collection
-                              '2022-10-28'],
+                              '2022-11-01'],
                   default_res='1_day',
                   )
 
