@@ -61,27 +61,42 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
 
         # To format date/time: https://github.com/d3/d3-time-format
         hovertemplate = 'Date: %{x|%b %d, %Y} (%{customdata[0]})' + \
-                        '<br>Count: %{y}' + \
-                        '<br>' + site_config['config_direction']['in'] + ': %{customdata[5]}' + \
-                        '<br>' + site_config['config_direction']['out'] + ': %{customdata[6]}' + \
+                        '<br>Count: %{y:,}' + \
+                        '<br>' + site_config['config_direction']['in'] + ': %{customdata[5]:,}' + \
+                        '<br>' + site_config['config_direction']['out'] + ': %{customdata[6]:,}' + \
                         '<br>Temperature (F): %{customdata[1]}\u00B0 - %{customdata[2]}\u00B0' + \
                         '<br>Precipitation: %{customdata[3]} inches' + \
                         '<br>Notes: %{customdata[4]}<extra></extra>' 
 
     elif agg_radio_val == '1_week':
 
-        hover_data = ['day_of_week']
+        hover_data = ['day_of_week', 'in', 'out']
 
-        hovertemplate = 'Week that ends on %{x|%b %d, %Y}' + \
-                        '<br>Count: %{y}'
+        hovertemplate = 'Week ending on %{x|%b %d, %Y}' + \
+                        '<br>Count: %{y:,}' + \
+                        '<br>' + site_config['config_direction']['in'] + ': %{customdata[1]:,}' + \
+                        '<br>' + site_config['config_direction']['out'] + ': %{customdata[2]:,}<extra></extra>' 
+
+    elif agg_radio_val == '1_month':
+
+        hover_data = ['day_of_week', 'in', 'out']
+
+        hovertemplate = '%{x|%B}' + \
+                        '<br>Count: %{y:,}' + \
+                        '<br>' + site_config['config_direction']['in'] + ': %{customdata[1]:,}' + \
+                        '<br>' + site_config['config_direction']['out'] + ': %{customdata[2]:,}<extra></extra>' 
+
+        print(df_updated)
 
     else:
 
-        hover_data = ['day_of_week']
+        hover_data = ['day_of_week', 'in', 'out']
 
         hovertemplate = 'Date: %{x|%b %d, %Y} (%{customdata[0]})' + \
                         '<br>Time: %{x|%I:%M %p}' + \
-                        '<br>Count: %{y}<extra></extra>' 
+                        '<br>Count: %{y:,}' + \
+                        '<br>' + site_config['config_direction']['in'] + ': %{customdata[1]:,}' + \
+                        '<br>' + site_config['config_direction']['out'] + ': %{customdata[2]:,}<extra></extra>' 
 
     fig1 = px.bar(df_updated, 
                   x=df_updated.index, 
@@ -115,7 +130,11 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
     # instead, show everyday once (delta tick of 1 day)
     if (agg_radio_val == '1_day') and (numdays <= 7):
         fig1.update_xaxes(dtick='d1', tickformat='%b%e\n%Y')
+
+    # elif agg_radio_val == '1_month':
     
+    #     fig1.update_xaxes(dtick='M1', tickformat='%B\n%Y')
+
     return fig1
     
 
