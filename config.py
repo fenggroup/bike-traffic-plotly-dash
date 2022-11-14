@@ -1,6 +1,6 @@
 # Dashboard configurations
 
-title = 'Bicycle Traffic Dashboard'
+title = 'Bicycle Counter Dashboard'
 
 # Set color codes for traffic directions
 color_both_direction = 'rgb(80, 123, 0)' # "#507B00"  # green
@@ -25,8 +25,12 @@ weekday_list = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 # A list of time of day labels in AM/PM format
 
-time_of_day_labels = ['12 AM', '1AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', 
-                      'noon', '1PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM', 
+# time_of_day_labels = ['12 AM', '1AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', 
+#                       'noon', '1PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM', 
+#                       '12 AM']
+
+time_of_day_labels = ['12 AM', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 
+                      '12 PM', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 
                       '12 AM']
 
 

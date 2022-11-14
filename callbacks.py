@@ -212,6 +212,7 @@ def update_figure(dir_radio_val, day_checklist_val, start_date, end_date, df):
     fig2.update_traces(marker_color=marker_color,
                        marker_size=10,
                        jitter=0.7, 
+                       width=0.8,
                        hovertemplate=hovertemplate)
 
     fig2.update_layout(xaxis_title='', 
@@ -266,15 +267,24 @@ def update_figure(dir_radio_val, start_date, end_date, df, df_weather):
                   y=df_day[dir_radio_val], 
                   category_orders=category_orders,
                 #   labels=labels,
-                  hover_data=hover_data, 
-                  template=config.template, 
-                  points='all')
+                #   hover_data=hover_data, 
+                #   template=config.template, 
+                #   points='all',
+                  points=False,
+                  )
 
     marker_color = utils.rgb2rgba(config.color[dir_radio_val], alpha=0.7)
 
+    fig3.add_trace(px.strip(df_day, 
+                            x=df_day.day_of_week,
+                            y=df_day[dir_radio_val], 
+                            # labels=labels,
+                            hover_data=hover_data).data[0])
+
     fig3.update_traces(marker_color=marker_color,
                        marker_size=20,
-                       jitter=0.3, 
+                       jitter=0.8,
+                       width=0.6, 
                        hovertemplate=hovertemplate)
 
     fig3.update_layout(xaxis_title='',
@@ -287,6 +297,7 @@ def update_figure(dir_radio_val, start_date, end_date, df, df_weather):
                        height=500,
                        modebar_remove=config.modebar_remove,
                        margin=dict(l=0, r=0, t=40, b=0),
+                       template=config.template,
                        )
 
     fig3.update_xaxes(categoryorder='array', categoryarray=category_orders)
@@ -444,16 +455,16 @@ def update_figure(dir_radio_val, day_checklist_val, rain_radio_val, start_date, 
                        marker_size=20, 
                        hovertemplate=hovertemplate)
 
-    fig5.update_layout(xaxis_title='Maximum temperature (Fahrenheit)', 
+    fig5.update_layout(xaxis_title='Daily high temperature (Fahrenheit)', 
                        yaxis_title='Daily count',
-                       title='<b>Daily traffic by maximum temperature</b>',
+                       title='<b>Daily traffic by daily high temperature</b>',
                        title_x=0.5,  # center title
                        transition_duration=500,
                        font=config.figure_font, 
                        height=500,
                        template=config.template,
                        modebar_remove=config.modebar_remove, 
-                       yaxis_range=[0, df_weather[dir_radio_val].max()+20],
+                       yaxis_range=[0, df_weather[dir_radio_val].max()+30],
                        margin=dict(l=0, r=0, t=40, b=0),
                        )
                        

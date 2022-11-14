@@ -153,9 +153,9 @@ def call_layout(site_config):
 
 
 home_layout = html.Div(children=[
-    html.H1(children='Bike traffic dashboard'),
+    html.H1(children='Bike counter dashboard'),
 
-    html.H3(children='Select a bike counter location below to see the dashboard.'),
+    html.H3(children='Select a bike counter below to see its dashboard.'),
 
     html.Div([html.Br(),
               dcc.Link(sites.site_01['site_title'], href=sites.site_01['site_url']),
