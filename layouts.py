@@ -135,10 +135,10 @@ def call_layout(site_config):
 
         html.Div(id='footer',
         children=[
-            html.H4(children=dcc.Markdown('Download the [data files](https://github.com/fenggroup/bike-traffic-plotly-dash/tree/main/data)')),
-            html.H4(children=dcc.Markdown('[Click here](https://fenggroup.org/bike-counter/) to learn more about our bike counting project.')),
-            html.H4(children=dcc.Markdown('This dashboard is open source and hosted on [our GitHub repository](https://github.com/fenggroup/bike-traffic-plotly-dash).')),
-            html.H4(children=dcc.Markdown('[Feng Group](https://fenggroup.org/) 2022'))
+                        html.H4(children=dcc.Markdown('This dashboard is open source and hosted on a [GitHub repository](https://github.com/fenggroup/bike-traffic-plotly-dash).')),
+            html.H4(children=dcc.Markdown('Download the [bike counter data](https://github.com/fenggroup/bike-traffic-plotly-dash/tree/main/data/counter)')),
+            # html.H4(children=dcc.Markdown('[Click here](https://fenggroup.org/bike-counter/) to learn more about our bike counting project.')),
+            # html.H4(children=dcc.Markdown('[Feng Group](https://fenggroup.org/) 2022'))
         ]),
 
         # dcc.Store stores the values

@@ -72,7 +72,14 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
 
         hover_data = ['day_of_week']
 
-        hovertemplate = 'Week that ends on %{x|%b %d, %Y}' + \
+        hovertemplate = 'Week ending on %{x|%b %d, %Y} (%{customdata[0]})' + \
+                        '<br>Count: %{y}'
+
+    elif agg_radio_val == '1_month':
+
+        hover_data = ['day_of_week']
+
+        hovertemplate = '%{x|%B %Y}' + \
                         '<br>Count: %{y}'
 
     else:
@@ -113,9 +120,22 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
     
     # Disable showing time of day on x-axis in the daily bar chat.
     # instead, show everyday once (delta tick of 1 day)
-    if (agg_radio_val == '1_day') and (numdays <= 7):
-        fig1.update_xaxes(dtick='d1', tickformat='%b%e\n%Y')
+    if agg_radio_val == '1_day': 
+        if numdays <= 7:
+            fig1.update_xaxes(dtick='d1', tickformat='%b%e\n%Y')
+        else:
+            fig1.update_xaxes(dtick=7*24*60*60*1000,    # weekly dtick in milliseconds,
+                              tickformat='%b%e\n%Y', 
+                              tick0='2022-01-03')      # tick showing Mondays
+
+    elif agg_radio_val == '1_week':
+
+        fig1.update_xaxes(dtick=7*24*60*60*1000, tickformat='%b%e\n%Y')
     
+    elif agg_radio_val == '1_month':
+
+        fig1.update_xaxes(dtick='M1', tickformat='%B\n%Y', tick0='2000-01-31')
+
     return fig1
     
 
@@ -386,7 +406,8 @@ def update_figure(dir_radio_val, start_date, end_date, df):
                       'ticktext':config.time_of_day_labels,
                       'showgrid':False,
                             },
-                        xaxis_range=[-0.5, 24],     
+                        xaxis_range=[-0.5, 24],
+                      hoverlabel=dict(font_color='white'),
                        )
 
     # print("plotly express hovertemplate:", fig4.data[0].hovertemplate)
@@ -431,8 +452,10 @@ def update_figure(dir_radio_val, day_checklist_val, rain_radio_val, start_date, 
 
     df_weather = df_weather[df_weather['day_of_week'].isin(day_checklist_val)]
 
+    df_weather['rained'] = df_weather['PRCP'].apply(lambda x: 1 if x > 0 else 0)
+
     if rain_radio_val == 'Only days without rain':
-        df_weather = df_weather.loc[df_weather['PRCP'] == 0]
+        df_weather = df_weather.loc[df_weather['rained'] == 0]
 
     hover_data = [df_weather.index.date, 'day_of_week', 'TMIN', 'TMAX', 'PRCP']
 
