@@ -449,21 +449,24 @@ def update_figure(dir_radio_val, day_checklist_val, rain_radio_val, start_date, 
                     '<br>Count: %{y}' + \
                     '<br>Temperature (F): %{customdata[2]}\u00B0 - %{x}\u00B0' + \
                     '<br>Precipitation: %{customdata[3]} inches'
-
-    scale = 'bluered'
+ 
+    def SetColor(x_prcp):
+        if(0 < x_prcp <= 0.1):
+            return "purple"
+        elif(x_prcp > 0.1):
+            return "red"
+        else:
+            return config.color[dir_radio_val]
 
     fig5 = px.scatter(df_weather, 
                       x='TMAX', 
                       y=dir_radio_val,
                       hover_data=hover_data,
-                      color='PRCP',
-                      color_continuous_scale=scale,
                       opacity=0.65,
                       trendline='ols')
 
-    # marker_color = utils.rgb2rgba(config.color[dir_radio_val], alpha=0.7)
     
-    fig5.update_traces(# marker_color=marker_color, 
+    fig5.update_traces( marker_color=list(map(SetColor, df_weather['PRCP'])), 
                        marker_size=20, 
                        hovertemplate=hovertemplate)
 
