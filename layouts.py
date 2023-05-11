@@ -41,6 +41,7 @@ def call_layout(site_config):
                                                         'out': site_config['config_direction']['out'] + ' only'},
                                                 value='bi_direction',
                                                 inputStyle={"margin-left": "10px"},
+                                                inline=True,
                                                 id='data-dir-radio'),
                             ]),
                  ]),
@@ -49,7 +50,7 @@ def call_layout(site_config):
                  children=[
                  html.Div(id='select-resolution',
                             children=[
-                                html.Span(children='Select data resolution', style={'font-weight': 'bold'}),
+                                html.Span(children='Select time resolution', style={'font-weight': 'bold'}),
                                 dcc.RadioItems(options={'1_month': 'monthly',
                                                         '1_week': 'weekly',
                                                         '1_day': 'daily',
@@ -58,6 +59,7 @@ def call_layout(site_config):
                                                         '15_min': '15 min'},
                                                 value=site_config['default_res'],
                                                 inputStyle={"margin-left": "10px"},
+                                                inline=True,
                                                 id='data-agg-radio'),
                             ]),
 
@@ -104,6 +106,7 @@ def call_layout(site_config):
                             options=config.weekday_list,
                             value=config.weekday_list,
                             inputStyle={"margin-left": "10px"},
+                            inline=True,
                             )]),
             
             dcc.Graph(id='time-of-day', 
@@ -120,6 +123,7 @@ def call_layout(site_config):
                                          options=config.weekday_list,
                                          value=config.weekday_list,
                                          inputStyle={"margin-left": "10px"},
+                                         inline=True,
                                          )]),
 
         html.Div(children=[dcc.RadioItems(id='rain-radio',
@@ -128,6 +132,7 @@ def call_layout(site_config):
                                          inputStyle={"margin-left": "10px"},
                                          style={"margin-top": "15px",
                                              "margin-bottom": "5px",},
+                                         inline=True,
                                          )]),
 
         html.Div(children=[dcc.Graph(id='weather-plot',

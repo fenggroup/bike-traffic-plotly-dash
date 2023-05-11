@@ -138,7 +138,7 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
 
     return fig1
 
-    # fig1.update_xaxes(rangebreaks=[dict(values=["2022-11-30", "2023-04-30"])])  
+    # fig1.update_xaxes(rangebreaks=[dict(values=["2022-11-30", "2023-04-30"])])   # not working
 
 # Callback for the summary table
 @callback(
@@ -400,7 +400,6 @@ def update_figure(dir_radio_val, start_date, end_date, df):
                                    xanchor="center",
                                    x=0.5,
                                    orientation='h',
-                                   entrywidth=170,
                                    ),
                       legend_title='Click on a label to hide the day of week → ',
                        xaxis={'tickvals':xticks, 
