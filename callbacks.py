@@ -137,7 +137,8 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
         fig1.update_xaxes(dtick='M1', tickformat='%B\n%Y', tick0='2000-01-31')
 
     return fig1
-    
+
+    # fig1.update_xaxes(rangebreaks=[dict(values=["2022-11-30", "2023-04-30"])])  
 
 # Callback for the summary table
 @callback(
@@ -196,7 +197,7 @@ def update_table(start_date, end_date, df, site_config):
 def update_figure(dir_radio_val, day_checklist_val, start_date, end_date, df):
 
     df = pd.read_json(df, orient='split')
-   
+    
     df_time = utils.df_update(df=df, rule='1H', start_date=start_date, end_date=end_date)
 
     df_time = df_time[df_time['day_of_week'].isin(day_checklist_val)]
@@ -472,6 +473,9 @@ def update_figure(dir_radio_val, day_checklist_val, rain_radio_val, start_date, 
                       hover_data=hover_data, 
                       trendline='ols')
 
+    print("go blue")
+    print(df_weather.head())
+
     marker_color = utils.rgb2rgba(config.color[dir_radio_val], alpha=0.7)
     
     fig5.update_traces(marker_color=marker_color, 
@@ -487,6 +491,7 @@ def update_figure(dir_radio_val, day_checklist_val, rain_radio_val, start_date, 
                        height=500,
                        template=config.template,
                        modebar_remove=config.modebar_remove, 
+                       xaxis_range=[25, 95],
                        yaxis_range=[0, df_weather[dir_radio_val].max()+30],
                        margin=dict(l=0, r=0, t=40, b=0),
                        )

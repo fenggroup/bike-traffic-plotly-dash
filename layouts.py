@@ -29,7 +29,7 @@ def call_layout(site_config):
                                                         end_date=site_config['date_range'][1],
                                                         first_day_of_week=1,  # start on Mondays
                                                         minimum_nights=0,
-                                                        updatemode='bothdates',
+                                                        updatemode='singledate',
                                                         ),
                             ]),
 

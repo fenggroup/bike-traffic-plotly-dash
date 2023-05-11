@@ -1,5 +1,5 @@
 # a collection of utility functions
-
+import numpy as np
 import pandas as pd
 import config
 
@@ -17,6 +17,8 @@ def df_process(data_file_name, date_range):
     df = df.set_index('time')
 
     df = df[date_range[0]: date_range[1]]
+
+    df["2022-11-20":"2023-04-30"] = np.nan   # manually set the dates of no recording
 
     return df
 
@@ -52,7 +54,7 @@ def note_data(note_file_name):
 # A function to update the dataframe based on the specified resample rule and date range
 def df_update(df, rule, start_date, end_date):
 
-    df_resample = df.resample(rule).sum()
+    df_resample = df.resample(rule).agg(pd.Series.sum, min_count=1)  # make sure the resample result of NAN is not zero but NAN.
 
     df_filtered = df_resample[(df_resample.index.strftime("%Y-%m-%d") >= start_date) & 
                               (df_resample.index.strftime("%Y-%m-%d") <= end_date)]
