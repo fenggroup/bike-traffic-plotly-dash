@@ -59,14 +59,27 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
 
         hover_data = ['day_of_week', 'TMIN', 'TMAX', 'PRCP', 'notes', 'in', 'out']
 
-        # To format date/time: https://github.com/d3/d3-time-format
-        hovertemplate = 'Date: %{x|%b %d, %Y} (%{customdata[0]})' + \
+        print(df_updated.head())
+        
+        if dir_radio_val == "both":
+
+            # To format date/time: https://github.com/d3/d3-time-format
+            hovertemplate = 'Date: %{x|%b %d, %Y} (%{customdata[0]})' + \
+                            '<br>Count: %{y}' + \
+                            '<br>' + site_config['config_direction']['in'] + ': %{customdata[5]}' + \
+                            '<br>' + site_config['config_direction']['out'] + ': %{customdata[6]}' + \
+                            '<br>Temperature (F): %{customdata[1]}\u00B0 - %{customdata[2]}\u00B0' + \
+                            '<br>Precipitation: %{customdata[3]} inches' + \
+                            '<br>Notes: %{customdata[4]}<extra></extra>'
+
+        else:
+
+            # To format date/time: https://github.com/d3/d3-time-format
+            hovertemplate = 'Date: %{x|%b %d, %Y} (%{customdata[0]})' + \
                         '<br>Count: %{y}' + \
-                        '<br>' + site_config['config_direction']['in'] + ': %{customdata[5]}' + \
-                        '<br>' + site_config['config_direction']['out'] + ': %{customdata[6]}' + \
                         '<br>Temperature (F): %{customdata[1]}\u00B0 - %{customdata[2]}\u00B0' + \
                         '<br>Precipitation: %{customdata[3]} inches' + \
-                        '<br>Notes: %{customdata[4]}<extra></extra>' 
+                        '<br>Notes: %{customdata[4]}<extra></extra>'  
 
     elif agg_radio_val == '1_week':
 
@@ -471,9 +484,6 @@ def update_figure(dir_radio_val, day_checklist_val, rain_radio_val, start_date, 
                       y=dir_radio_val,
                       hover_data=hover_data, 
                       trendline='ols')
-
-    print("go blue")
-    print(df_weather.head())
 
     marker_color = utils.rgb2rgba(config.color[dir_radio_val], alpha=0.7)
     
