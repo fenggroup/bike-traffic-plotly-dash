@@ -14,7 +14,7 @@ def call_layout(site_config):
                     html.H1(children=config.title),
                     html.H3(children=dcc.Markdown(
                             site_config['loc_msg_markdown'])),
-                    html.H3(children=site_config['dates_msg']),
+                    # html.H3(children=site_config['dates_msg']),
                 ]),
 
         html.Div(id='dash-controls',
