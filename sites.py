@@ -1,13 +1,13 @@
 # Bike counter site information
 
 site_01 = dict(site_url='/annarbor-1',
-               site_title='Ann Arbor Division Street Bikeway',
+               site_title='Ann Arbor Division Street Protected Bike Lane',
                data_file_name='export_data_domain_7992.xlsx',
                weather_file_name='weather-noaa-annarbor.csv',
                note_file_name='notes-annarbor.csv',
                config_direction={'in': 'Northbound',
                                  'out': 'Southbound'},
-               loc_msg_markdown='[Ann Arbor Division Street Bikeway](https://www.a2dda.org/people-friendly-streets/projects/division-street-bikeway-project/) | [Site photo](https://fenggroup.org/images/respic/bike-counter-a2division.png) | [Site location](https://goo.gl/maps/1bcfHrqSYbqiRSXa8)',
+               loc_msg_markdown='[Ann Arbor Division Street Protected Bike Lane](https://www.a2dda.org/people-friendly-streets/projects/division-street-bikeway-project/) | [Site photo](https://fenggroup.org/images/respic/bike-counter-a2division.png) | [Site location](https://goo.gl/maps/1bcfHrqSYbqiRSXa8)',
                dates_msg='Data collection: 2022: Aug 26 to Nov 19, 2023: May 1 to present',
                date_range=['2022-08-26',   # the first full *day* of data collection
                            '2023-06-09'],
