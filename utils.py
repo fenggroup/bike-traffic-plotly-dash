@@ -52,17 +52,31 @@ def note_data(note_file_name):
 
 
 # A function to update the dataframe based on the specified resample rule and date range
-def df_update(df, rule, start_date, end_date):
+def df_update(df, rule, start_date, end_date, agg='sum'):
 
-    if rule == 'W':
+    if agg == 'sum':
 
-        df_resample = df.resample(rule, label='left').agg(pd.Series.sum, min_count=1)  # make sure the resample result of NAN is not zero but NAN.
-        df_resample.index = df_resample.index + pd.DateOffset(days=1)  # offset the index by a day
-        # see the issue here: https://stackoverflow.com/questions/30989224/python-pandas-dataframe-resample-daily-data-to-week-by-mon-sun-weekly-definition/46712821#46712821
+        if rule == 'W':
 
-    else: 
+            df_resample = df.resample(rule, label='left').agg(pd.Series.sum, min_count=1)  # make sure the resample result of NAN is not zero but NAN.
+            df_resample.index = df_resample.index + pd.DateOffset(days=1)  # offset the index by a day
+            # see the issue here: https://stackoverflow.com/questions/30989224/python-pandas-dataframe-resample-daily-data-to-week-by-mon-sun-weekly-definition/46712821#46712821
 
-        df_resample = df.resample(rule).agg(pd.Series.sum, min_count=1)  # make sure the resample result of NAN is not zero but NAN.
+        else: 
+
+            df_resample = df.resample(rule).agg(pd.Series.sum, min_count=1)  # make sure the resample result of NAN is not zero but NAN.
+
+    elif agg == 'mean':
+
+        if rule == 'W':
+
+            df_resample = df.resample(rule, label='left').agg(pd.Series.mean)  # make sure the resample result of NAN is not zero but NAN.
+            df_resample.index = df_resample.index + pd.DateOffset(days=1)  # offset the index by a day
+            # see the issue here: https://stackoverflow.com/questions/30989224/python-pandas-dataframe-resample-daily-data-to-week-by-mon-sun-weekly-definition/46712821#46712821
+
+        else: 
+
+            df_resample = df.resample(rule).agg(pd.Series.mean)  # make sure the resample result of NAN is not zero but NAN.
 
     df_filtered = df_resample[(df_resample.index.strftime("%Y-%m-%d") >= start_date) & 
                               (df_resample.index.strftime("%Y-%m-%d") <= end_date)]

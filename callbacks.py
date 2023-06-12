@@ -50,6 +50,8 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
 
     df_updated = utils.df_update(df=df, rule=rule, start_date=start_date, end_date=end_date)
 
+    df_weather_updated = utils.df_update(df=df_weather, rule=rule, start_date=start_date, end_date=end_date, agg='mean')
+
     marker_color = config.color[dir_radio_val]
 
     # add additional hover data for *daily* chart
@@ -61,8 +63,6 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
 
         hover_data = ['day_of_week', 'TMIN', 'TMAX', 'PRCP', 'notes', 'in', 'out']
 
-        print(df_updated.head())
-        
         if dir_radio_val == "both":
 
             # To format date/time: https://github.com/d3/d3-time-format
@@ -85,17 +85,22 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
 
     elif agg_radio_val == '1_week':
 
-        hover_data = ['day_of_week']
+        df_updated = df_updated.join(df_weather_updated.drop(columns=['day_of_week']))   # join with weekly average weather data
 
-        hovertemplate = 'Week starting on %{x|%b %d, %Y} (%{customdata[0]})' + \
-                        '<br>Count: %{y:,}'
+        hover_data = ['day_of_week', 'TMIN', 'TMAX']
 
+        hovertemplate = 'Week of %{x|%b %d, %Y} (%{customdata[0]})' + \
+                        '<br>Count: %{y:,}' + \
+                        '<br>Ave daily low/high temp (F): %{customdata[1]:.0f}\u00B0 - %{customdata[2]:.0f}\u00B0'
     elif agg_radio_val == '1_month':
 
-        hover_data = ['day_of_week']
+        df_updated = df_updated.join(df_weather_updated.drop(columns=['day_of_week']))   # join with month average weather data
+
+        hover_data = ['day_of_week', 'TMIN', 'TMAX']
 
         hovertemplate = '%{x|%B %Y}' + \
-                        '<br>Count: %{y:,}'
+                '<br>Count: %{y:,}' + \
+                '<br>Ave daily low/high temp (F): %{customdata[1]:.0f}\u00B0 - %{customdata[2]:.0f}\u00B0'
 
     else:
 
