@@ -7,6 +7,8 @@ import layouts
 import config
 import utils
 
+from datetime import timedelta
+
 # Callback for the main bar chart
 @callback(
     Output(component_id='bar-graph', component_property='figure'),
@@ -64,7 +66,7 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
         if dir_radio_val == "both":
 
             # To format date/time: https://github.com/d3/d3-time-format
-            hovertemplate = 'Date: %{x|%b %d, %Y} (%{customdata[0]})' + \
+            hovertemplate = 'Date: %{x-timedelta(days=7)|%b %d, %Y} (%{customdata[0]})' + \
                             '<br>Count: %{y}' + \
                             '<br>' + site_config['config_direction']['in'] + ': %{customdata[5]}' + \
                             '<br>' + site_config['config_direction']['out'] + ': %{customdata[6]}' + \
@@ -85,7 +87,7 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
 
         hover_data = ['day_of_week']
 
-        hovertemplate = 'Week ending on %{x|%b %d, %Y} (%{customdata[0]})' + \
+        hovertemplate = 'Week starting on %{x|%b %d, %Y} (%{customdata[0]})' + \
                         '<br>Count: %{y}'
 
     elif agg_radio_val == '1_month':
@@ -143,7 +145,7 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
 
     elif agg_radio_val == '1_week':
 
-        fig1.update_xaxes(dtick=7*24*60*60*1000, tickformat='%b%e\n%Y')
+        fig1.update_xaxes(dtick=7*24*60*60*1000, tickformat='%b%e\n%Y', tick0='2022-08-29')
     
     elif agg_radio_val == '1_month':
 
