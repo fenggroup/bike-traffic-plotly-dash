@@ -67,7 +67,7 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
 
             # To format date/time: https://github.com/d3/d3-time-format
             hovertemplate = 'Date: %{x-timedelta(days=7)|%b %d, %Y} (%{customdata[0]})' + \
-                            '<br>Count: %{y}' + \
+                            '<br>Count: %{y:,}' + \
                             '<br>' + site_config['config_direction']['in'] + ': %{customdata[5]}' + \
                             '<br>' + site_config['config_direction']['out'] + ': %{customdata[6]}' + \
                             '<br>Temperature (F): %{customdata[1]}\u00B0 - %{customdata[2]}\u00B0' + \
@@ -78,7 +78,7 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
 
             # To format date/time: https://github.com/d3/d3-time-format
             hovertemplate = 'Date: %{x|%b %d, %Y} (%{customdata[0]})' + \
-                        '<br>Count: %{y}' + \
+                        '<br>Count: %{y:,}' + \
                         '<br>Temperature (F): %{customdata[1]}\u00B0 - %{customdata[2]}\u00B0' + \
                         '<br>Precipitation: %{customdata[3]} inches' + \
                         '<br>Notes: %{customdata[4]}<extra></extra>'  
@@ -88,14 +88,14 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
         hover_data = ['day_of_week']
 
         hovertemplate = 'Week starting on %{x|%b %d, %Y} (%{customdata[0]})' + \
-                        '<br>Count: %{y}'
+                        '<br>Count: %{y:,}'
 
     elif agg_radio_val == '1_month':
 
         hover_data = ['day_of_week']
 
         hovertemplate = '%{x|%B %Y}' + \
-                        '<br>Count: %{y}'
+                        '<br>Count: %{y:,}'
 
     else:
 
