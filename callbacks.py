@@ -71,7 +71,7 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
                             '<br>' + site_config['config_direction']['in'] + ': %{customdata[5]}' + \
                             '<br>' + site_config['config_direction']['out'] + ': %{customdata[6]}' + \
                             '<br>Temperature (F): %{customdata[1]}\u00B0 - %{customdata[2]}\u00B0' + \
-                            '<br>Precipitation: %{customdata[3]} inches' + \
+                            '<br>Precipitation: %{customdata[3]:.2f} inches' + \
                             '<br>Notes: %{customdata[4]}<extra></extra>'
 
         else:
@@ -80,7 +80,7 @@ def update_figure(dir_radio_val, agg_radio_val, start_date, end_date, df, df_wea
             hovertemplate = 'Date: %{x|%b %d, %Y} (%{customdata[0]})' + \
                         '<br>Count: %{y:,}' + \
                         '<br>Temperature (F): %{customdata[1]}\u00B0 - %{customdata[2]}\u00B0' + \
-                        '<br>Precipitation: %{customdata[3]} inches' + \
+                        '<br>Precipitation: %{customdata[3]:.2f} inches' + \
                         '<br>Notes: %{customdata[4]}<extra></extra>'  
 
     elif agg_radio_val == '1_week':
